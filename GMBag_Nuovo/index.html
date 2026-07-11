@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="GMBag - Borse e Accessori. Scopri la nostra collezione esclusiva di borse e accessori realizzati con i migliori materiali."
+    />
+    <meta name="keywords" content="borse , accessori , " />
+    <meta name="author" content="GMBag" />
+    <title>GMBag - Borse e Accessori Premium</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- HEADER E NAVIGAZIONE -->
+    <header id="site-header">
+      <nav class="navbar">
+        <div class="container navbar-container">
+          <a class="navbar-brand" href="index.html">GMBag</a>
+
+          <ul class="navbar-nav">
+            <li><a href="index.html" class="nav-link active">Home</a></li>
+            <li><a href="prodotti.html" class="nav-link">Prodotti</a></li>
+            <li><a href="blog.html" class="nav-link">Blog</a></li>
+            <li><a href="contatti.html" class="nav-link">Contatti</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="hero-banner">
+      <div class="inner-content">
+        <h1>Borse e Accessori </h1>
+        <p>
+          Scopri la nostra collezione esclusiva di borse, accessori
+          premium realizzati con i migliori materiali
+        </p>
+        <button class="btn-primary" onclick="scrollToProducts()">
+          Scopri i Prodotti
+        </button>
+      </div>
+    </section>
+
+    <!-- SEZIONE VANTAGGI -->
+    <section class="features-section">
+      <div class="container">
+        <div class="title-content">
+          <h2>Perché Scegliere GMBag</h2>
+          <p>Qualità, tradizione e eccellenza in ogni prodotto</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-box fade-in">
+            <h3>✨ Qualità Premium</h3>
+            <p>
+              I nostri prodotti sono realizzati con i migliori materiali e
+              lavorazioni artigianali. Ogni borsa è frutto di ricerca e sviluppo
+              attento per garantire qualità, durabilità e stile incomparabile.
+            </p>
+          </div>
+
+          <div class="feature-box fade-in">
+            <h3>⏰ 20+ Anni di Tradizione</h3>
+            <p>
+              Da oltre 20 anni creiamo accessori di lusso che combinano eleganza
+              e funzionalità. Il nostro team di designer esperti garantisce
+              collezioni sempre aggiornate con i trend internazionali.
+            </p>
+          </div>
+
+          <div class="feature-box fade-in">
+            <h3>🛡️ Garanzia e Servizio</h3>
+            <p>
+              Garanzia 2 anni su tutti i prodotti e servizio clienti dedicato.
+              Siamo qui per supportarti in ogni fase del tuo acquisto e oltre.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE PRODOTTI IN EVIDENZA -->
+    <section class="products-section">
+      <div class="container">
+        <div class="title-content">
+          <h2>Scopri i Nostri Bestseller</h2>
+          <p>Le borse e gli accessori più amati dai nostri clienti</p>
+        </div>
+
+        <div class="products-grid" id="products-section">
+          <!-- Prodotto 1 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image0.jpeg" alt="Borsa a Mano Nera" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Borsa a Mano Nera</div>
+              <div class="product-price">€129,99</div>
+              <p class="product-description">
+                Elegante borsa in pelle nera con tracolla regolabile. Perfetta
+                per ogni occasione.
+              </p>
+              <button class="btn-cart" onclick="addToCart('Borsa a Mano Nera')">
+                Scopri di Più
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodotto 2 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image1.jpeg" alt="Zaino Viaggio Premium" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Zaino Viaggio Premium</div>
+              <div class="product-price">€189,99</div>
+              <p class="product-description">
+                Zaino capiente con compartimenti organizzati per il viaggio
+                perfetto.
+              </p>
+              <button
+                class="btn-cart"
+                onclick="addToCart('Zaino Viaggio Premium')"
+              >
+                Scopri di Più
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodotto 3 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image2.jpeg" alt="Portafoglio in Pelle" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Portafoglio in Pelle</div>
+              <div class="product-price">€79,99</div>
+              <p class="product-description">
+                Portafoglio compatto in pelle pregiata con scomparti multipli.
+              </p>
+              <button
+                class="btn-cart"
+                onclick="addToCart('Portafoglio in Pelle')"
+              >
+                Scopri di Più
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodotto 4 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image3.jpeg" alt="Cintura in Pelle" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Cintura in Pelle</div>
+              <div class="product-price">€59,99</div>
+              <p class="product-description">
+                Cintura classica in pelle con fibbia dorata. Un accessorio
+                essenziale.
+              </p>
+              <button class="btn-cart" onclick="addToCart('Cintura in Pelle')">
+                Scopri di Più
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-3">
+          <a href="prodotti.html" class="btn-primary btn-link-primary"
+            >Vedi Tutti i Prodotti</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE TESTIMONIALI -->
+    <section class="testimonials-section">
+      <div class="container">
+        <div class="title-content white">
+          <h2>Cosa Dicono i Nostri Clienti</h2>
+          <p>Leggi le opinioni di chi ha scelto GMBag</p>
+        </div>
+
+        <div class="testimonials-grid">
+          <div class="testimonial-card fade-in">
+            <div class="stars">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-text">
+              "Ho acquistato questa borsa tre mesi fa e ancora non posso credere
+              alla qualità. È perfetta per il lavoro e gli eventi!"
+            </p>
+            <p class="testimonial-author">— Maria Rossi</p>
+          </div>
+
+          <div class="testimonial-card fade-in">
+            <div class="stars">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-text">
+              "Spedizione veloce e prodotto esattamente come in foto. Il
+              servizio clienti è stato impeccabile. Consigliatissimo!"
+            </p>
+            <p class="testimonial-author">— Luca Ferrari</p>
+          </div>
+
+          <div class="testimonial-card fade-in">
+            <div class="stars">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-text">
+              "Miglior rapporto qualità-prezzo che abbia mai trovato. Gli
+              accessori sono eleganti e durevoli. Tornerò a comprare!"
+            </p>
+            <p class="testimonial-author">— Giulia Bianchi</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE NEWSLETTER -->
+    <section class="newsletter-section">
+      <div class="container">
+        <div class="newsletter-content fade-in">
+          <h2>Iscriviti alla Newsletter</h2>
+          <p>
+            Ricevi i nostri ultimi arrivi, offerte speciali e consigli di moda
+            direttamente nella tua email!
+          </p>
+          <form class="newsletter-form">
+            <input type="email" placeholder="Il tuo indirizzo email" required />
+            <button type="submit">Iscriviti Ora</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE CTA -->
+    <section class="cta-section fade-in">
+      <div class="container">
+        <h2>Pronti ad Elevare il Vostro Stile?</h2>
+        <p>
+          Scopri la collezione esclusiva di GMBag e trova l'accessorio perfetto
+          per te.
+        </p>
+        <a href="prodotti.html" class="btn-primary">Inizia lo Shopping</a>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>
+        &copy; 2026 GMBag | Tutti i diritti riservati |
+        <a href="#">Privacy Policy</a> | <a href="#">Termini di Servizio</a>
+      </p>
+    </footer>
+
+    <!-- CHATBOT WIDGET -->
+    <div class="chatbot-widget" id="chatbotWidget">
+      <div class="chatbot-header" id="chatbotHeader">
+        <span>💬 GMBag Assistant</span>
+        <button id="chatbotToggle">−</button>
+      </div>
+      <div class="chatbot-body" id="chatbotBody">
+        <div class="chatbot-messages">
+          <div class="message bot-message">
+            <p>
+              Ciao! 👋 Sono l'assistente di GMBag. Come posso aiutarti oggi?
+            </p>
+          </div>
+        </div>
+        <div class="chatbot-input">
+          <input
+            type="text"
+            id="userInput"
+            placeholder="Scrivi un messaggio..."
+          />
+          <button id="sendBtn">Invia</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script src="js/main.js"></script>
+  </body>
+</html>

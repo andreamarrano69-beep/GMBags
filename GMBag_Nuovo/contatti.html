@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contattaci - GMBag. Siamo qui per rispondere a tutte le tue domande.">
+    <title>Contatti - GMBag</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 15px;
+            background: #d4af37;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .form-submit:hover {
+            background: #e5c158;
+            transform: translateY(-2px);
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .contact-item {
+            text-align: center;
+            padding: 2rem;
+            background: #f5f5f5;
+            border-radius: 12px;
+        }
+
+        .contact-item h3 {
+            color: #d4af37;
+            margin-bottom: 1rem;
+        }
+
+        .contact-item p {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER E NAVIGAZIONE -->
+    <header id="site-header">
+        <nav class="navbar">
+            <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+                <a class="navbar-brand" href="index.html">GMBag</a>
+                
+                <ul class="navbar-nav" style="display: flex; list-style: none; gap: 2rem; margin: 0;">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="prodotti.html" class="nav-link">Prodotti</a></li>
+                    <li><a href="blog.html" class="nav-link">Blog</a></li>
+                    <li><a href="contatti.html" class="nav-link active">Contatti</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="hero-banner">
+        <div class="inner-content">
+            <h1>Contattaci</h1>
+            <p>Siamo qui per rispondere a tutte le tue domande</p>
+        </div>
+    </section>
+
+    <!-- SEZIONE CONTATTI -->
+    <section class="products-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>Rimani in Contatto</h2>
+                <p>Compila il modulo qui sotto e ti risponderemo entro 24 ore</p>
+            </div>
+
+            <form class="contact-form fade-in" onsubmit="handleContactForm(event)">
+                <div class="form-group">
+                    <label for="name">Nome Completo *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Telefono</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Oggetto *</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Messaggio *</label>
+                    <textarea id="message" name="message" required></textarea>
+                </div>
+
+                <button type="submit" class="form-submit">Invia Messaggio</button>
+            </form>
+
+            <!-- INFORMAZIONI DI CONTATTO -->
+            <div class="contact-info">
+                <div class="contact-item fade-in">
+                    <h3>📍 Indirizzo</h3>
+                    <p>Via della Moda, 123<br>20100 Milano, Italia</p>
+                </div>
+
+                <div class="contact-item fade-in">
+                    <h3>📞 Telefono</h3>
+                    <p>+39 02 1234 5678<br>Lun-Ven: 9:00-18:00</p>
+                </div>
+
+                <div class="contact-item fade-in">
+                    <h3>📧 Email</h3>
+                    <p>info@gmbag.it<br>support@gmbag.it</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 GMBag | Tutti i diritti riservati | <a href="#">Privacy Policy</a> | <a href="#">Termini di Servizio</a></p>
+    </footer>
+
+    <!-- CHATBOT WIDGET -->
+    <div class="chatbot-widget" id="chatbotWidget">
+        <div class="chatbot-header" id="chatbotHeader">
+            <span>💬 GMBag Assistant</span>
+            <button id="chatbotToggle" style="background: none; border: none; color: #1a1a1a; cursor: pointer; font-size: 1.5rem;">−</button>
+        </div>
+        <div class="chatbot-body" id="chatbotBody" style="display: none;">
+            <div class="chatbot-messages">
+                <div class="message bot-message">
+                    <p>Ciao! 👋 Sono l'assistente di GMBag. Come posso aiutarti oggi?</p>
+                </div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="userInput" placeholder="Scrivi un messaggio...">
+                <button id="sendBtn">Invia</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script src="js/main.js"></script>
+    <script>
+        function handleContactForm(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            
+            // Simula l'invio del modulo
+            alert(`Grazie ${name}! Il tuo messaggio è stato inviato con successo. Ti contatteremo a ${email} entro 24 ore.`);
+            
+            // Resetta il modulo
+            event.target.reset();
+        }
+    </script>
+</body>
+</html>

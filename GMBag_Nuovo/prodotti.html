@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Scopri la collezione completa di GMBag - Borse, zaini, portafogli e accessori premium."
+    />
+    <title>Prodotti - GMBag</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- HEADER E NAVIGAZIONE -->
+    <header id="site-header">
+      <nav class="navbar">
+        <div class="container navbar-container">
+          <a class="navbar-brand" href="index.html">GMBag</a>
+
+          <ul class="navbar-nav">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li>
+              <a href="prodotti.html" class="nav-link active">Prodotti</a>
+            </li>
+            <li><a href="blog.html" class="nav-link">Blog</a></li>
+            <li><a href="contatti.html" class="nav-link">Contatti</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="hero-banner">
+      <div class="inner-content">
+        <h1>I Nostri Prodotti</h1>
+        <p>Scopri la collezione esclusiva di borse e accessori GMBag</p>
+      </div>
+    </section>
+
+    <!-- SEZIONE CATEGORIE -->
+    <section class="features-section">
+      <div class="container">
+        <div class="title-content">
+          <h2>Categorie Prodotti</h2>
+          <p>Trova quello che fa per te</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-box fade-in">
+            <h3>👜 Borse a Mano</h3>
+            <p>
+              Borse eleganti e sofisticate per ogni occasione. Realizzate in
+              pelle pregiata con finiture raffinate. Perfette per il lavoro o
+              gli eventi speciali.
+            </p>
+            <p class="price-label">Prezzo da: €89</p>
+          </div>
+
+          <div class="feature-box fade-in">
+            <h3>🎒 Zaini e Borse Viaggio</h3>
+            <p>
+              Zaini funzionali per il lavoro e la scuola. Borse spaziose per
+              lunghi viaggi con compartimenti organizzati e design ergonomico.
+            </p>
+            <p class="price-label">Prezzo da: €120</p>
+          </div>
+
+          <div class="feature-box fade-in">
+            <h3>💼 Portafogli e Pochette</h3>
+            <p>
+              Portafogli compatti ma capienti per organizzare il necessario.
+              Pochette eleganti per occasioni speciali con design minimale.
+            </p>
+            <p class="price-label">Prezzo da: €45</p>
+          </div>
+
+          <div class="feature-box fade-in">
+            <h3>⌚ Cinture e Accessori</h3>
+            <p>
+              Cinture in pelle di alta qualità per completare il look. Accessori
+              come foulard, bracciali e collane per un stile completo.
+            </p>
+            <p class="price-label">Prezzo da: €35</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEZIONE COLLEZIONE COMPLETA -->
+    <section class="products-section">
+      <div class="container">
+        <div class="title-content">
+          <h2>Collezione Completa</h2>
+          <p>Tutti i nostri prodotti disponibili</p>
+        </div>
+
+        <div class="products-grid">
+          <!-- Prodotto 1 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image0.jpeg" alt="Borsa a Mano Nera" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Borsa a Mano Nera</div>
+              <div class="product-price">€129,99</div>
+              <p class="product-description">
+                Elegante borsa in pelle nera con tracolla regolabile.
+              </p>
+              <button class="btn-cart" onclick="addToCart('Borsa a Mano Nera')">
+                Aggiungi al Carrello
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodotto 2 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image1.jpeg" alt="Zaino Viaggio Premium" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Zaino Viaggio Premium</div>
+              <div class="product-price">€189,99</div>
+              <p class="product-description">
+                Zaino capiente con compartimenti organizzati per il viaggio.
+              </p>
+              <button
+                class="btn-cart"
+                onclick="addToCart('Zaino Viaggio Premium')"
+              >
+                Aggiungi al Carrello
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodotto 3 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image2.jpeg" alt="Portafoglio in Pelle" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Portafoglio in Pelle</div>
+              <div class="product-price">€79,99</div>
+              <p class="product-description">
+                Portafoglio compatto in pelle pregiata con scomparti multipli.
+              </p>
+              <button
+                class="btn-cart"
+                onclick="addToCart('Portafoglio in Pelle')"
+              >
+                Aggiungi al Carrello
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodotto 4 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image3.jpeg" alt="Cintura in Pelle" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Cintura in Pelle</div>
+              <div class="product-price">€59,99</div>
+              <p class="product-description">
+                Cintura classica in pelle con fibbia dorata.
+              </p>
+              <button class="btn-cart" onclick="addToCart('Cintura in Pelle')">
+                Aggiungi al Carrello
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodotto 5 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image4.jpeg" alt="Borsa a Spalla Marrone" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Borsa a Spalla Marrone</div>
+              <div class="product-price">€149,99</div>
+              <p class="product-description">
+                Borsa a spalla in pelle scamosciata marrone chiaro.
+              </p>
+              <button
+                class="btn-cart"
+                onclick="addToCart('Borsa a Spalla Marrone')"
+              >
+                Aggiungi al Carrello
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodotto 6 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image5.jpeg" alt="Pochette Sera" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Pochette Sera</div>
+              <div class="product-price">€99,99</div>
+              <p class="product-description">
+                Pochette elegante per serate speciali con catena.
+              </p>
+              <button class="btn-cart" onclick="addToCart('Pochette Sera')">
+                Aggiungi al Carrello
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodotto 7 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image6.jpeg" alt="Set Accessori" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Set Accessori</div>
+              <div class="product-price">€49,99</div>
+              <p class="product-description">
+                Set completo di accessori: cintura, portachiavi e foulard.
+              </p>
+              <button class="btn-cart" onclick="addToCart('Set Accessori')">
+                Aggiungi al Carrello
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodotto 8 -->
+          <div class="product-card fade-in">
+            <div class="product-image">
+              <img src="assets/img/image0.jpeg" alt="Borsa Tote Beige" />
+            </div>
+            <div class="product-info">
+              <div class="product-name">Borsa Tote Beige</div>
+              <div class="product-price">€119,99</div>
+              <p class="product-description">
+                Spaziosa borsa Tote in beige perfetta per il lavoro.
+              </p>
+              <button class="btn-cart" onclick="addToCart('Borsa Tote Beige')">
+                Aggiungi al Carrello
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>
+        &copy; 2026 GMBag | Tutti i diritti riservati |
+        <a href="#">Privacy Policy</a> | <a href="#">Termini di Servizio</a>
+      </p>
+    </footer>
+
+    <!-- CHATBOT WIDGET -->
+    <div class="chatbot-widget" id="chatbotWidget">
+      <div class="chatbot-header" id="chatbotHeader">
+        <span>💬 GMBag Assistant</span>
+        <button id="chatbotToggle">−</button>
+      </div>
+      <div class="chatbot-body" id="chatbotBody">
+        <div class="chatbot-messages">
+          <div class="message bot-message">
+            <p>
+              Ciao! 👋 Sono l'assistente di GMBag. Come posso aiutarti oggi?
+            </p>
+          </div>
+        </div>
+        <div class="chatbot-input">
+          <input
+            type="text"
+            id="userInput"
+            placeholder="Scrivi un messaggio..."
+          />
+          <button id="sendBtn">Invia</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script src="js/main.js"></script>
+  </body>
+</html>
