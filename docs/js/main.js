@@ -252,6 +252,23 @@ function scrollToProducts() {
 }
 
 /* ============================================
+   PREZZI PRODOTTO
+   Inserisci qui il prezzo unitario (in euro) di ogni prodotto quando e'
+   deciso. Finche' resta "null", il sito mostra "prezzo da confermare" e
+   il totale verra' comunicato via email invece di essere calcolato.
+   ============================================ */
+const PRODUCT_PRICES = {
+    'Pochette Nera con Catena': null,
+    'Clutch Lilla': null,
+    'Pochette Panna': null,
+    'Borsa Senape a Tracolla': null
+};
+
+function formatEuro(amount) {
+    return amount.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+}
+
+/* ============================================
    MODULO ORDINE PRODOTTO (invio diretto via email)
    ============================================ */
 function buildOrderModal() {
@@ -279,8 +296,13 @@ function buildOrderModal() {
                     <input type="tel" id="orderPhone">
                 </div>
                 <div class="form-group">
+                    <label for="orderQuantity">Quantità</label>
+                    <input type="number" id="orderQuantity" min="1" value="1">
+                </div>
+                <p class="order-total" id="orderTotal"></p>
+                <div class="form-group">
                     <label for="orderMessage">Messaggio</label>
-                    <textarea id="orderMessage" placeholder="Colore, quantità, domande..."></textarea>
+                    <textarea id="orderMessage" placeholder="Colore, domande..."></textarea>
                 </div>
                 <button type="submit" class="order-modal-submit" id="orderSubmitBtn">Invia Richiesta</button>
                 <p class="order-modal-status" id="orderModalStatus"></p>
@@ -294,9 +316,25 @@ function buildOrderModal() {
     });
     document.getElementById('orderModalClose').addEventListener('click', closeOrderModal);
     document.getElementById('orderForm').addEventListener('submit', handleOrderSubmit);
+    document.getElementById('orderQuantity').addEventListener('input', updateOrderTotal);
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeOrderModal();
     });
+}
+
+function updateOrderTotal() {
+    const totalEl = document.getElementById('orderTotal');
+    const productName = document.getElementById('orderForm').dataset.product;
+    const unitPrice = PRODUCT_PRICES[productName];
+    const qtyInput = document.getElementById('orderQuantity');
+    const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+    qtyInput.value = qty;
+
+    if (unitPrice == null) {
+        totalEl.textContent = 'Totale: da confermare (ti diremo il prezzo appena possibile)';
+    } else {
+        totalEl.textContent = `Totale: ${formatEuro(unitPrice * qty)} (${formatEuro(unitPrice)} x ${qty})`;
+    }
 }
 
 function openOrderModal(productName) {
@@ -304,6 +342,8 @@ function openOrderModal(productName) {
     document.getElementById('orderProductName').textContent = `Prodotto: ${productName}`;
     document.getElementById('orderForm').dataset.product = productName;
     document.getElementById('orderModalStatus').textContent = '';
+    document.getElementById('orderQuantity').value = 1;
+    updateOrderTotal();
     document.getElementById('orderModalOverlay').classList.add('active');
 }
 
@@ -320,6 +360,11 @@ function handleOrderSubmit(e) {
     const productName = form.dataset.product;
     const name = document.getElementById('orderName').value;
     const email = document.getElementById('orderEmail').value;
+    const qty = Math.max(1, parseInt(document.getElementById('orderQuantity').value, 10) || 1);
+    const unitPrice = PRODUCT_PRICES[productName];
+    const totaleTesto = unitPrice == null
+        ? 'da confermare'
+        : `${formatEuro(unitPrice * qty)} (${formatEuro(unitPrice)} x ${qty})`;
 
     btn.disabled = true;
     btn.textContent = 'Invio in corso...';
@@ -329,8 +374,10 @@ function handleOrderSubmit(e) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-            _subject: `Richiesta ordine: ${productName}`,
+            _subject: `Richiesta ordine: ${productName} (x${qty})`,
             prodotto: productName,
+            quantita: qty,
+            totale: totaleTesto,
             nome: name,
             email: email,
             telefono: document.getElementById('orderPhone').value,
