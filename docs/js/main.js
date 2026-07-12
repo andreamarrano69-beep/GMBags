@@ -251,9 +251,105 @@ function scrollToProducts() {
     }
 }
 
-const WHATSAPP_NUMBER = '393925961105';
+/* ============================================
+   MODULO ORDINE PRODOTTO (invio diretto via email)
+   ============================================ */
+function buildOrderModal() {
+    if (document.getElementById('orderModalOverlay')) return;
 
-function orderOnWhatsApp(productName) {
-    const message = `Ciao! Sono interessato/a a: ${productName}. È disponibile?`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+    const overlay = document.createElement('div');
+    overlay.className = 'order-modal-overlay';
+    overlay.id = 'orderModalOverlay';
+    overlay.innerHTML = `
+        <div class="order-modal">
+            <button type="button" class="order-modal-close" id="orderModalClose" aria-label="Chiudi">&times;</button>
+            <h3>Richiedi il Prodotto</h3>
+            <p class="order-product-name" id="orderProductName"></p>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="orderName">Nome Completo *</label>
+                    <input type="text" id="orderName" required>
+                </div>
+                <div class="form-group">
+                    <label for="orderEmail">Email *</label>
+                    <input type="email" id="orderEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="orderPhone">Telefono</label>
+                    <input type="tel" id="orderPhone">
+                </div>
+                <div class="form-group">
+                    <label for="orderMessage">Messaggio</label>
+                    <textarea id="orderMessage" placeholder="Colore, quantità, domande..."></textarea>
+                </div>
+                <button type="submit" class="order-modal-submit" id="orderSubmitBtn">Invia Richiesta</button>
+                <p class="order-modal-status" id="orderModalStatus"></p>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeOrderModal();
+    });
+    document.getElementById('orderModalClose').addEventListener('click', closeOrderModal);
+    document.getElementById('orderForm').addEventListener('submit', handleOrderSubmit);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeOrderModal();
+    });
+}
+
+function openOrderModal(productName) {
+    buildOrderModal();
+    document.getElementById('orderProductName').textContent = `Prodotto: ${productName}`;
+    document.getElementById('orderForm').dataset.product = productName;
+    document.getElementById('orderModalStatus').textContent = '';
+    document.getElementById('orderModalOverlay').classList.add('active');
+}
+
+function closeOrderModal() {
+    const overlay = document.getElementById('orderModalOverlay');
+    if (overlay) overlay.classList.remove('active');
+}
+
+function handleOrderSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = document.getElementById('orderSubmitBtn');
+    const statusEl = document.getElementById('orderModalStatus');
+    const productName = form.dataset.product;
+    const name = document.getElementById('orderName').value;
+    const email = document.getElementById('orderEmail').value;
+
+    btn.disabled = true;
+    btn.textContent = 'Invio in corso...';
+    statusEl.textContent = '';
+
+    fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+            _subject: `Richiesta ordine: ${productName}`,
+            prodotto: productName,
+            nome: name,
+            email: email,
+            telefono: document.getElementById('orderPhone').value,
+            messaggio: document.getElementById('orderMessage').value
+        })
+    })
+        .then((res) => {
+            if (!res.ok) throw new Error('Invio fallito');
+            statusEl.style.color = '#2e7d32';
+            statusEl.textContent = `Grazie ${name}! La richiesta per "${productName}" è stata inviata. Ti risponderemo a ${email} il prima possibile.`;
+            form.reset();
+            setTimeout(closeOrderModal, 3000);
+        })
+        .catch(() => {
+            statusEl.style.color = '#c62828';
+            statusEl.textContent = 'Si è verificato un errore. Scrivici direttamente a gmbags@gmail.com.';
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Invia Richiesta';
+        });
 }

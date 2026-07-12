@@ -919,3 +919,120 @@ footer a:hover {
 .mb-3 {
   margin-bottom: 3rem;
 }
+
+/* ============================================
+   MODULO ORDINE PRODOTTO
+   ============================================ */
+.order-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  padding: 1rem;
+}
+
+.order-modal-overlay.active {
+  display: flex;
+}
+
+.order-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.25);
+}
+
+.order-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+}
+
+.order-modal h3 {
+  margin-bottom: 0.3rem;
+  color: var(--primary-dark);
+}
+
+.order-modal .order-product-name {
+  color: var(--primary-gold);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.order-modal .form-group {
+  margin-bottom: 1.2rem;
+}
+
+.order-modal label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  font-size: 0.95rem;
+}
+
+.order-modal input,
+.order-modal textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.order-modal input:focus,
+.order-modal textarea:focus {
+  outline: none;
+  border-color: var(--primary-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.order-modal textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.order-modal-submit {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary-gold);
+  color: var(--primary-dark);
+  border: none;
+  border-radius: 6px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.order-modal-submit:hover {
+  background: #e5c158;
+}
+
+.order-modal-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.order-modal-status {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.95rem;
+}
