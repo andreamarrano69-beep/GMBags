@@ -63,12 +63,12 @@ class ChatBot {
     getBotResponse(userMessage) {
         const responses = {
             'ciao': 'Ciao! 👋 Come posso aiutarti oggi?',
-            'prodotti': 'Abbiamo una collezione esclusiva di borse, zaini, portafogli e accessori premium. Vuoi scoprire di più?',
-            'prezzo': 'I nostri prezzi variano da €35 a €189,99. Dipende dal prodotto che cerchi!',
-            'spedizione': 'Offriamo spedizione veloce in tutta Italia. I tempi variano da 2 a 5 giorni lavorativi.',
-            'garanzia': 'Tutti i nostri prodotti hanno una garanzia di 2 anni. Siamo qui per supportarti!',
-            'contatti': 'Puoi contattarci tramite il modulo nella pagina Contatti o via email. Ti risponderemo entro 24 ore!',
-            'default': 'Grazie per la tua domanda! Per informazioni più dettagliate, visita la pagina Contatti o scrivi a support@gmbag.it'
+            'prodotti': 'Realizziamo borse e pochette artigianali all\'uncinetto, fatte interamente a mano. Vuoi scoprire la collezione?',
+            'prezzo': 'Il prezzo varia in base al modello. Scrivici su WhatsApp il prodotto che ti interessa e ti rispondiamo subito!',
+            'spedizion': 'Scrivici su WhatsApp o via email per organizzare insieme spedizione o ritiro del tuo ordine.',
+            'contatt': 'Puoi scriverci su WhatsApp al +39 392 596 1105 oppure via email a gmbags@gmail.com. Ti rispondiamo il prima possibile!',
+            'whatsapp': 'Scrivici su WhatsApp al +39 392 596 1105, ti rispondiamo il prima possibile!',
+            'default': 'Grazie per la tua domanda! Per informazioni scrivici su WhatsApp al +39 392 596 1105 o via email a gmbags@gmail.com'
         };
 
         const lowerMessage = userMessage.toLowerCase();
@@ -113,6 +113,13 @@ class ScrollAnimations {
         fadeInElements.forEach(element => {
             this.observer.observe(element);
         });
+
+        // Rete di sicurezza: se per qualsiasi motivo l'osservatore non
+        // rivela un elemento (JS lento, bot, browser particolare), il
+        // contenuto non deve restare invisibile per sempre.
+        setTimeout(() => {
+            fadeInElements.forEach(element => element.classList.add('visible'));
+        }, 2500);
     }
 }
 
@@ -189,18 +196,35 @@ class NewsletterForm {
         e.preventDefault();
         const input = this.form.querySelector('input[type="email"]');
         const button = this.form.querySelector('button');
-        
-        if (input.value.trim()) {
-            const originalText = button.textContent;
-            button.textContent = '✓ Iscritto!';
-            button.style.background = '#d4af37';
-            
-            setTimeout(() => {
-                input.value = '';
-                button.textContent = originalText;
-                button.style.background = '';
-            }, 2000);
-        }
+        if (!input.value.trim()) return;
+
+        const originalText = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Invio...';
+
+        fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({
+                _subject: 'Nuova iscrizione Newsletter GMBag',
+                email: input.value.trim()
+            })
+        })
+            .then(() => {
+                button.textContent = '✓ Iscritto!';
+                button.style.background = '#d4af37';
+            })
+            .catch(() => {
+                button.textContent = 'Errore, riprova';
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    input.value = '';
+                    button.textContent = originalText;
+                    button.style.background = '';
+                    button.disabled = false;
+                }, 2500);
+            });
     }
 }
 
@@ -227,8 +251,9 @@ function scrollToProducts() {
     }
 }
 
-function addToCart(productName) {
-    console.log(`Prodotto aggiunto: ${productName}`);
-    // Qui puoi aggiungere la logica del carrello
-    alert(`${productName} è stato aggiunto al carrello!`);
+const WHATSAPP_NUMBER = '393925961105';
+
+function orderOnWhatsApp(productName) {
+    const message = `Ciao! Sono interessato/a a: ${productName}. È disponibile?`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
 }

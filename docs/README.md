@@ -6,8 +6,11 @@ Benvenuto nella versione **completamente rinnovata** di GMBag! Questo progetto �
 
 ## 📁 Struttura del Progetto
 
+Il sito vive nella cartella `docs/` del repository, cosi' GitHub Pages puo'
+pubblicarlo direttamente (Settings → Pages → Branch: main, Folder: /docs).
+
 ```
-GMBag_Nuovo/
+docs/
 ├── index.html              # Homepage principale
 ├── prodotti.html           # Pagina catalogo prodotti
 ├── blog.html              # Sezione blog
@@ -55,15 +58,23 @@ GMBag_Nuovo/
 ## 🚀 Come Utilizzare
 
 ### Apertura Locale
-1. Scarica la cartella `GMBag_Nuovo`
+1. Scarica la cartella `docs`
 2. Apri `index.html` nel tuo browser preferito
 3. Naviga tra le pagine usando il menu
 
-### Hosting Online
-Per deployare il sito online:
-- Carica tutti i file su un server web
-- Assicurati che la struttura delle cartelle sia mantenuta
-- Testa tutte le pagine e i link
+### Pubblicazione su GitHub Pages (gratis)
+1. Vai su GitHub → repository GMBags → **Settings** → **Pages**
+2. In "Build and deployment" seleziona **Source: Deploy from a branch**
+3. Branch: **main**, cartella: **/docs** → **Save**
+4. Dopo qualche minuto il sito sara' online su
+   `https://andreamarrano69-beep.github.io/GMBags/`
+
+### Modulo Contatti/Newsletter (FormSubmit)
+Il modulo contatti e la newsletter inviano i messaggi via email a
+`gmbags@gmail.com` tramite il servizio gratuito FormSubmit, senza bisogno
+di un server. **Al primo invio**, FormSubmit manda un'email di conferma a
+`gmbags@gmail.com`: bisogna cliccare il link di conferma dentro quell'email,
+altrimenti i messaggi successivi non arriveranno.
 
 ---
 
@@ -115,7 +126,7 @@ Modifica le variabili CSS in `css/style.css`:
 ```
 
 ### Aggiungere Prodotti
-Duplica il blocco `.product-card` in `prodotti.html` e `index.html`:
+Duplica il blocco `.product-card` in `prodotti.html` e, se e' un bestseller, anche in `index.html`:
 
 ```html
 <div class="product-card fade-in">
@@ -124,12 +135,16 @@ Duplica il blocco `.product-card` in `prodotti.html` e `index.html`:
     </div>
     <div class="product-info">
         <div class="product-name">Nome Prodotto</div>
-        <div class="product-price">€XXX,XX</div>
+        <div class="product-price">Scrivici per il prezzo</div>
         <p class="product-description">Descrizione...</p>
-        <button class="btn-cart" onclick="addToCart('Nome Prodotto')">Aggiungi al Carrello</button>
+        <button class="btn-cart" onclick="orderOnWhatsApp('Nome Prodotto')">Ordina su WhatsApp</button>
     </div>
 </div>
 ```
+
+Il pulsante apre WhatsApp con un messaggio precompilato al numero configurato
+in `js/main.js` (costante `WHATSAPP_NUMBER`). Per cambiare il numero, modifica
+solo quella costante.
 
 ### Modificare il Chatbot
 Personalizza le risposte in `js/main.js`, nella funzione `getBotResponse()`:
@@ -161,15 +176,27 @@ const responses = {
 
 ---
 
+## ⚠️ Cose da Sistemare Prima di Farlo Conoscere Bene
+
+1. **Prezzi reali**: le schede prodotto mostrano "Scrivici per il prezzo" in
+   attesa dei prezzi definitivi da inserire.
+2. **Recensioni**: quelle attuali (Maria Rossi, Luca Ferrari, Giulia Bianchi)
+   sono di esempio, da sostituire con recensioni vere appena disponibili.
+3. **Foto prodotto**: la prima foto (pochette nera) include un profumo Gucci
+   e occhiali Ray-Ban come sfondo — meglio rifare la foto solo con il
+   prodotto, per non creare confusione con quei marchi.
+4. **Catalogo**: al momento sono online solo 4 modelli (quelli fotografati).
+   Aggiungete pure altre foto per ampliare il catalogo.
+
 ## 💡 Suggerimenti per Miglioramenti Futuri
 
-1. **Backend**: Integrare un backend per gestire ordini e newsletter
-2. **Database**: Creare un database per prodotti e commenti
-3. **Carrello**: Implementare un carrello funzionante con localStorage
-4. **Pagamenti**: Integrare Stripe o PayPal
-5. **SEO**: Aggiungere meta tag e schema markup
-6. **Analytics**: Integrare Google Analytics
-7. **CMS**: Usare un CMS per gestire contenuti facilmente
+1. **Pagamenti online**: quando i volumi crescono, aggiungere Stripe Payment
+   Links per accettare pagamenti diretti dal sito, senza dover costruire un
+   carrello completo.
+2. **SEO**: aggiungere sitemap.xml, dati strutturati Product/Organization
+3. **Analytics**: integrare Google Analytics o Plausible per capire da dove
+   arrivano i visitatori
+4. **Dominio personalizzato**: es. gmbags.it al posto di github.io
 
 ---
 

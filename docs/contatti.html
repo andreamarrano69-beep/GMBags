@@ -127,7 +127,7 @@
                 <p>Compila il modulo qui sotto e ti risponderemo entro 24 ore</p>
             </div>
 
-            <form class="contact-form fade-in" onsubmit="handleContactForm(event)">
+            <form class="contact-form fade-in" id="contactForm" onsubmit="handleContactForm(event)">
                 <div class="form-group">
                     <label for="name">Nome Completo *</label>
                     <input type="text" id="name" name="name" required>
@@ -153,24 +153,25 @@
                     <textarea id="message" name="message" required></textarea>
                 </div>
 
-                <button type="submit" class="form-submit">Invia Messaggio</button>
+                <button type="submit" class="form-submit" id="contactSubmitBtn">Invia Messaggio</button>
+                <p id="contactFormStatus" style="margin-top: 1rem; text-align: center;"></p>
             </form>
 
             <!-- INFORMAZIONI DI CONTATTO -->
             <div class="contact-info">
                 <div class="contact-item fade-in">
                     <h3>📍 Indirizzo</h3>
-                    <p>Via della Moda, 123<br>20100 Milano, Italia</p>
+                    <p>Via Avellino, 17<br>Caserta, Italia</p>
                 </div>
 
                 <div class="contact-item fade-in">
-                    <h3>📞 Telefono</h3>
-                    <p>+39 02 1234 5678<br>Lun-Ven: 9:00-18:00</p>
+                    <h3>💬 WhatsApp</h3>
+                    <p><a href="https://wa.me/393925961105" style="color:#666; text-decoration:none;">+39 392 596 1105</a></p>
                 </div>
 
                 <div class="contact-item fade-in">
                     <h3>📧 Email</h3>
-                    <p>info@gmbag.it<br>support@gmbag.it</p>
+                    <p>gmbags@gmail.com</p>
                 </div>
             </div>
         </div>
@@ -205,16 +206,45 @@
     <script>
         function handleContactForm(event) {
             event.preventDefault();
-            
+
+            const form = event.target;
+            const statusEl = document.getElementById('contactFormStatus');
+            const btn = document.getElementById('contactSubmitBtn');
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
-            const subject = document.getElementById('subject').value;
-            
-            // Simula l'invio del modulo
-            alert(`Grazie ${name}! Il tuo messaggio è stato inviato con successo. Ti contatteremo a ${email} entro 24 ore.`);
-            
-            // Resetta il modulo
-            event.target.reset();
+
+            btn.disabled = true;
+            btn.textContent = 'Invio in corso...';
+            statusEl.textContent = '';
+
+            const data = {
+                nome: name,
+                email: email,
+                telefono: document.getElementById('phone').value,
+                oggetto: document.getElementById('subject').value,
+                messaggio: document.getElementById('message').value,
+                _subject: 'Nuovo messaggio dal sito GMBag'
+            };
+
+            fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify(data)
+            })
+                .then((res) => {
+                    if (!res.ok) throw new Error('Invio fallito');
+                    statusEl.style.color = '#2e7d32';
+                    statusEl.textContent = `Grazie ${name}! Il tuo messaggio è stato inviato. Ti risponderemo a ${email} il prima possibile.`;
+                    form.reset();
+                })
+                .catch(() => {
+                    statusEl.style.color = '#c62828';
+                    statusEl.textContent = 'Si è verificato un errore. Scrivici direttamente su WhatsApp al +39 392 596 1105 o via email a gmbags@gmail.com.';
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.textContent = 'Invia Messaggio';
+                });
         }
     </script>
 </body>
