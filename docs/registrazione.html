@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Registrati su GMBag per poter ordinare le nostre borse artigianali.">
+    <title>Registrati - GMBag</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- HEADER E NAVIGAZIONE -->
+    <header id="site-header">
+        <nav class="navbar">
+            <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+                <a class="navbar-brand" href="index.html">GMBag</a>
+
+                <ul class="navbar-nav" style="display: flex; list-style: none; gap: 2rem; margin: 0;">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="prodotti.html" class="nav-link">Prodotti</a></li>
+                    <li><a href="blog.html" class="nav-link">Blog</a></li>
+                    <li><a href="contatti.html" class="nav-link">Contatti</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="hero-banner">
+        <div class="inner-content">
+            <h1>Crea il Tuo Account</h1>
+            <p>Registrati per poter ordinare le nostre borse artigianali</p>
+        </div>
+    </section>
+
+    <!-- SEZIONE REGISTRAZIONE -->
+    <section class="products-section">
+        <div class="container">
+            <form class="contact-form fade-in" id="registerForm">
+                <div class="form-group">
+                    <label for="regNome">Nome Completo *</label>
+                    <input type="text" id="regNome" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regEmail">Email *</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regTelefono">Telefono</label>
+                    <input type="tel" id="regTelefono">
+                </div>
+
+                <div class="form-group">
+                    <label for="regPassword">Password * (almeno 6 caratteri)</label>
+                    <input type="password" id="regPassword" minlength="6" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regPasswordConferma">Conferma Password *</label>
+                    <input type="password" id="regPasswordConferma" minlength="6" required>
+                </div>
+
+                <button type="submit" class="form-submit" id="registerSubmitBtn">Registrati</button>
+                <p class="form-status" id="registerStatus"></p>
+                <p class="form-footnote">Hai già un account? <a href="login.html">Accedi qui</a></p>
+                <p class="form-footnote" style="font-size: 0.85rem;">
+                    Registrandoti accetti la nostra
+                    <a href="privacy.html">Privacy Policy</a>.
+                </p>
+            </form>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 GMBag | Tutti i diritti riservati | <a href="privacy.html">Privacy Policy</a></p>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const statusEl = document.getElementById('registerStatus');
+            const btn = document.getElementById('registerSubmitBtn');
+
+            if (!isSupabaseConfigured) {
+                statusEl.style.color = '#c62828';
+                statusEl.textContent = 'Il sistema di account non è ancora attivo su questo sito.';
+                return;
+            }
+
+            const nome = document.getElementById('regNome').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const telefono = document.getElementById('regTelefono').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const conferma = document.getElementById('regPasswordConferma').value;
+
+            if (password !== conferma) {
+                statusEl.style.color = '#c62828';
+                statusEl.textContent = 'Le due password non coincidono.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Registrazione in corso...';
+            statusEl.textContent = '';
+
+            const { error } = await supabaseClient.auth.signUp({
+                email,
+                password,
+                options: { data: { nome, telefono } }
+            });
+
+            btn.disabled = false;
+            btn.textContent = 'Registrati';
+
+            if (error) {
+                statusEl.style.color = '#c62828';
+                statusEl.textContent = error.message === 'User already registered'
+                    ? 'Esiste già un account con questa email.'
+                    : 'Si è verificato un errore: ' + error.message;
+                return;
+            }
+
+            statusEl.style.color = '#2e7d32';
+            statusEl.textContent = 'Registrazione completata! Controlla la tua email per confermare l\'account, poi accedi.';
+            document.getElementById('registerForm').reset();
+        });
+    </script>
+</body>
+</html>

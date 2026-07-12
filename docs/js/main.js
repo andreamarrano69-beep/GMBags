@@ -337,12 +337,56 @@ function updateOrderTotal() {
     }
 }
 
-function openOrderModal(productName) {
+function showLoginRequiredModal(productName) {
+    let modal = document.getElementById('loginRequiredOverlay');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'order-modal-overlay';
+        modal.id = 'loginRequiredOverlay';
+        modal.innerHTML = `
+            <div class="order-modal" style="text-align: center;">
+                <button type="button" class="order-modal-close" id="loginRequiredClose" aria-label="Chiudi">&times;</button>
+                <h3>Accesso Richiesto</h3>
+                <p style="margin-bottom: 1.5rem; color: #666;">
+                    Per ordinare <strong id="loginRequiredProduct"></strong> devi prima accedere
+                    o creare un account gratuito. La consultazione del sito resta libera per tutti.
+                </p>
+                <a href="login.html" class="btn-primary" style="display: block; margin-bottom: 1rem;">Accedi</a>
+                <a href="registrazione.html" class="form-footnote" style="display: block;">Non hai un account? Registrati</a>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('active');
+        });
+        document.getElementById('loginRequiredClose').addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+    }
+    document.getElementById('loginRequiredProduct').textContent = productName;
+    modal.classList.add('active');
+}
+
+async function openOrderModal(productName) {
+    if (!isSupabaseConfigured) {
+        alert('Il sistema di account e ordini non è ancora attivo su questo sito. Contattaci direttamente per informazioni su questo prodotto.');
+        return;
+    }
+
+    const { session, profile } = await getSessionAndProfile();
+    if (!session) {
+        showLoginRequiredModal(productName);
+        return;
+    }
+
     buildOrderModal();
     document.getElementById('orderProductName').textContent = `Prodotto: ${productName}`;
     document.getElementById('orderForm').dataset.product = productName;
     document.getElementById('orderModalStatus').textContent = '';
     document.getElementById('orderQuantity').value = 1;
+    document.getElementById('orderName').value = profile ? profile.nome : '';
+    document.getElementById('orderEmail').value = session.user.email;
+    document.getElementById('orderPhone').value = (profile && profile.telefono) || '';
     updateOrderTotal();
     document.getElementById('orderModalOverlay').classList.add('active');
 }
@@ -352,7 +396,7 @@ function closeOrderModal() {
     if (overlay) overlay.classList.remove('active');
 }
 
-function handleOrderSubmit(e) {
+async function handleOrderSubmit(e) {
     e.preventDefault();
     const form = e.target;
     const btn = document.getElementById('orderSubmitBtn');
@@ -360,43 +404,63 @@ function handleOrderSubmit(e) {
     const productName = form.dataset.product;
     const name = document.getElementById('orderName').value;
     const email = document.getElementById('orderEmail').value;
+    const phone = document.getElementById('orderPhone').value;
+    const message = document.getElementById('orderMessage').value;
     const qty = Math.max(1, parseInt(document.getElementById('orderQuantity').value, 10) || 1);
     const unitPrice = PRODUCT_PRICES[productName];
-    const totaleTesto = unitPrice == null
-        ? 'da confermare'
-        : `${formatEuro(unitPrice * qty)} (${formatEuro(unitPrice)} x ${qty})`;
+    const totaleNumerico = unitPrice == null ? null : unitPrice * qty;
+    const totaleTesto = unitPrice == null ? 'da confermare' : formatEuro(totaleNumerico);
 
     btn.disabled = true;
     btn.textContent = 'Invio in corso...';
     statusEl.textContent = '';
 
+    const { session } = await getSessionAndProfile();
+    if (!session) {
+        statusEl.style.color = '#c62828';
+        statusEl.textContent = "Sessione scaduta, effettua di nuovo l'accesso.";
+        btn.disabled = false;
+        btn.textContent = 'Invia Richiesta';
+        return;
+    }
+
+    const { error } = await supabaseClient.from('orders').insert({
+        user_id: session.user.id,
+        prodotto: productName,
+        quantita: qty,
+        prezzo_unitario: unitPrice,
+        totale: totaleNumerico,
+        messaggio: message
+    });
+
+    if (error) {
+        statusEl.style.color = '#c62828';
+        statusEl.textContent = "Si è verificato un errore nel salvare l'ordine. Riprova o scrivici a gmbags@gmail.com.";
+        btn.disabled = false;
+        btn.textContent = 'Invia Richiesta';
+        return;
+    }
+
+    // Notifica via email, best-effort: se fallisce l'ordine e' comunque salvato
     fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-            _subject: `Richiesta ordine: ${productName} (x${qty})`,
+            _subject: `Nuovo ordine: ${productName} (x${qty})`,
             prodotto: productName,
             quantita: qty,
             totale: totaleTesto,
             nome: name,
             email: email,
-            telefono: document.getElementById('orderPhone').value,
-            messaggio: document.getElementById('orderMessage').value
+            telefono: phone,
+            messaggio: message
         })
-    })
-        .then((res) => {
-            if (!res.ok) throw new Error('Invio fallito');
-            statusEl.style.color = '#2e7d32';
-            statusEl.textContent = `Grazie ${name}! La richiesta per "${productName}" è stata inviata. Ti risponderemo a ${email} il prima possibile.`;
-            form.reset();
-            setTimeout(closeOrderModal, 3000);
-        })
-        .catch(() => {
-            statusEl.style.color = '#c62828';
-            statusEl.textContent = 'Si è verificato un errore. Scrivici direttamente a gmbags@gmail.com.';
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.textContent = 'Invia Richiesta';
-        });
+    }).catch(() => {});
+
+    statusEl.style.color = '#2e7d32';
+    statusEl.textContent = `Grazie ${name}! Il tuo ordine per "${productName}" è stato registrato. Ti aggiorneremo su ${email}.`;
+    form.reset();
+    btn.disabled = false;
+    btn.textContent = 'Invia Richiesta';
+    setTimeout(closeOrderModal, 3000);
 }

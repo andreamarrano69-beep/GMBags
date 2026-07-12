@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Il tuo account GMBag: profilo e storico ordini.">
+    <title>Il Mio Account - GMBag</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- HEADER E NAVIGAZIONE -->
+    <header id="site-header">
+        <nav class="navbar">
+            <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+                <a class="navbar-brand" href="index.html">GMBag</a>
+
+                <ul class="navbar-nav" style="display: flex; list-style: none; gap: 2rem; margin: 0;">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="prodotti.html" class="nav-link">Prodotti</a></li>
+                    <li><a href="blog.html" class="nav-link">Blog</a></li>
+                    <li><a href="contatti.html" class="nav-link">Contatti</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="hero-banner">
+        <div class="inner-content">
+            <h1>Il Mio Account</h1>
+            <p id="accountWelcome">Bentornato/a</p>
+        </div>
+    </section>
+
+    <!-- SEZIONE PROFILO -->
+    <section class="features-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>I Miei Dati</h2>
+            </div>
+            <div class="contact-info">
+                <div class="contact-item fade-in">
+                    <h3>👤 Nome</h3>
+                    <p id="profileNome">-</p>
+                </div>
+                <div class="contact-item fade-in">
+                    <h3>📧 Email</h3>
+                    <p id="profileEmail">-</p>
+                </div>
+                <div class="contact-item fade-in">
+                    <h3>📞 Telefono</h3>
+                    <p id="profileTelefono">-</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEZIONE ORDINI -->
+    <section class="products-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>I Miei Ordini</h2>
+                <p>Storico delle richieste effettuate</p>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Prodotto</th>
+                            <th>Quantità</th>
+                            <th>Totale</th>
+                            <th>Stato</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <tr><td colspan="5">Caricamento...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 GMBag | Tutti i diritti riservati | <a href="privacy.html">Privacy Policy</a></p>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        (async () => {
+            const result = await requireLogin('login.html');
+            if (!result) return;
+
+            const { session, profile } = result;
+
+            document.getElementById('accountWelcome').textContent =
+                `Bentornato/a, ${profile ? profile.nome : session.user.email}`;
+            document.getElementById('profileNome').textContent = profile ? profile.nome : '-';
+            document.getElementById('profileEmail').textContent = session.user.email;
+            document.getElementById('profileTelefono').textContent = (profile && profile.telefono) || '-';
+
+            const { data: orders, error } = await supabaseClient
+                .from('orders')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+
+            if (error) {
+                tbody.innerHTML = '<tr><td colspan="5">Errore nel caricamento degli ordini.</td></tr>';
+                return;
+            }
+
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Nessun ordine effettuato finora.</td></tr>';
+                return;
+            }
+
+            orders.forEach((order) => {
+                const tr = document.createElement('tr');
+                const data = new Date(order.created_at).toLocaleDateString('it-IT');
+                const totale = order.totale != null
+                    ? Number(order.totale).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })
+                    : 'da confermare';
+                tr.innerHTML = `
+                    <td>${data}</td>
+                    <td>${order.prodotto}</td>
+                    <td>${order.quantita}</td>
+                    <td>${totale}</td>
+                    <td>${order.stato}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        })();
+    </script>
+</body>
+</html>

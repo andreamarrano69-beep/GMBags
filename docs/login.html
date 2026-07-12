@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Accedi al tuo account GMBag per ordinare le nostre borse artigianali.">
+    <title>Accedi - GMBag</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- HEADER E NAVIGAZIONE -->
+    <header id="site-header">
+        <nav class="navbar">
+            <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+                <a class="navbar-brand" href="index.html">GMBag</a>
+
+                <ul class="navbar-nav" style="display: flex; list-style: none; gap: 2rem; margin: 0;">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="prodotti.html" class="nav-link">Prodotti</a></li>
+                    <li><a href="blog.html" class="nav-link">Blog</a></li>
+                    <li><a href="contatti.html" class="nav-link">Contatti</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="hero-banner">
+        <div class="inner-content">
+            <h1>Accedi</h1>
+            <p>Entra nel tuo account per ordinare le nostre borse</p>
+        </div>
+    </section>
+
+    <!-- SEZIONE LOGIN -->
+    <section class="products-section">
+        <div class="container">
+            <form class="contact-form fade-in" id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email *</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password *</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+
+                <button type="submit" class="form-submit" id="loginSubmitBtn">Accedi</button>
+                <p class="form-status" id="loginStatus"></p>
+                <p class="form-footnote">Non hai un account? <a href="registrazione.html">Registrati qui</a></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 GMBag | Tutti i diritti riservati | <a href="privacy.html">Privacy Policy</a></p>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const statusEl = document.getElementById('loginStatus');
+            const btn = document.getElementById('loginSubmitBtn');
+
+            if (!isSupabaseConfigured) {
+                statusEl.style.color = '#c62828';
+                statusEl.textContent = 'Il sistema di account non è ancora attivo su questo sito.';
+                return;
+            }
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            btn.disabled = true;
+            btn.textContent = 'Accesso in corso...';
+            statusEl.textContent = '';
+
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                btn.disabled = false;
+                btn.textContent = 'Accedi';
+                statusEl.style.color = '#c62828';
+                statusEl.textContent = 'Email o password non corrette.';
+                return;
+            }
+
+            window.location.href = 'account.html';
+        });
+    </script>
+</body>
+</html>

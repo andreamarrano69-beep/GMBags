@@ -86,6 +86,11 @@ altrimenti i messaggi successivi non arriveranno.
 | **prodotti.html** | Catalogo completo con categorie e griglia prodotti |
 | **blog.html** | Sezione articoli con card blog interattive |
 | **contatti.html** | Form contatti e informazioni di contatto |
+| **registrazione.html** | Creazione account cliente |
+| **login.html** | Accesso account cliente |
+| **account.html** | Area riservata cliente: profilo e storico ordini |
+| **admin.html** | Pannello amministratore: utenti, ordini, pagamenti |
+| **privacy.html** | Privacy Policy |
 
 ---
 
@@ -137,14 +142,19 @@ Duplica il blocco `.product-card` in `prodotti.html` e, se e' un bestseller, anc
         <div class="product-name">Nome Prodotto</div>
         <div class="product-price">Scrivici per il prezzo</div>
         <p class="product-description">Descrizione...</p>
-        <button class="btn-cart" onclick="orderOnWhatsApp('Nome Prodotto')">Ordina su WhatsApp</button>
+        <button class="btn-cart" onclick="openOrderModal('Nome Prodotto')">Ordina via Email</button>
     </div>
 </div>
 ```
 
-Il pulsante apre WhatsApp con un messaggio precompilato al numero configurato
-in `js/main.js` (costante `WHATSAPP_NUMBER`). Per cambiare il numero, modifica
-solo quella costante.
+Aggiungi anche il prezzo in `js/main.js`, nell'oggetto `PRODUCT_PRICES`:
+
+```javascript
+const PRODUCT_PRICES = {
+    'Nome Prodotto': 49.90,
+    // ...
+};
+```
 
 ### Modificare il Chatbot
 Personalizza le risposte in `js/main.js`, nella funzione `getBotResponse()`:
@@ -173,6 +183,55 @@ const responses = {
 - **CSS3**: Variabili, Flexbox, Grid, Media Queries
 - **JavaScript (ES6+)**: Classi, Arrow Functions, Event Listeners
 - **Font**: Segoe UI, Tahoma, Geneva (system fonts)
+
+---
+
+## 🔐 Account Utenti, Ordini e Pannello Admin (Supabase)
+
+Il sito ora supporta registrazione/login utenti: solo chi ha un account
+puo' ordinare (la navigazione resta libera per tutti). Per attivare questa
+funzione serve un progetto Supabase gratuito (database + autenticazione).
+
+### Passo 1: crea il progetto Supabase
+1. Vai su [supabase.com](https://supabase.com) e registrati gratis
+2. Crea un nuovo progetto (es. nome "gmbags", regione vicina all'Italia
+   come "Central EU")
+3. Scegli una password del database e salvala in un posto sicuro
+4. Aspetta 1-2 minuti che il progetto sia pronto
+
+### Passo 2: crea le tabelle del database
+1. Nel progetto Supabase vai su **SQL Editor** (menu a sinistra) → **New query**
+2. Apri il file `docs/supabase-schema.sql` di questo repository, copia
+   tutto il contenuto e incollalo nell'editor
+3. Clicca **Run**: crea le tabelle `profiles` e `orders` con tutte le
+   protezioni di sicurezza necessarie
+
+### Passo 3: collega il sito al progetto
+1. Nel progetto Supabase vai su **Project Settings → API**
+2. Copia il valore **Project URL** e il valore **anon public** (una chiave lunga)
+3. Apri `docs/js/supabase-config.js` e sostituisci i due valori placeholder
+   con quelli copiati
+4. Salva, fai commit e push: da questo momento login/registrazione/ordini
+   funzionano
+
+### Passo 4: diventa amministratore
+1. Registrati normalmente dal sito (pagina **Registrati**) con la tua email
+2. Torna nell'**SQL Editor** di Supabase ed esegui (sostituendo l'email):
+   ```sql
+   update public.profiles set is_admin = true
+   where id = (select id from auth.users where email = 'gmbags@gmail.com');
+   ```
+3. Accedi di nuovo: nel menu comparirà il link **Admin** con statistiche,
+   elenco ordini e possibilità di aggiornarne lo stato (in attesa,
+   confermato, pagato, spedito, annullato)
+
+### Note importanti
+- Finché `supabase-config.js` ha ancora i valori segnaposto, il sito
+  funziona normalmente ma login/registrazione/ordini mostrano un messaggio
+  che avvisa che la funzione non è ancora attiva (nessun errore per i
+  visitatori)
+- Il piano gratuito di Supabase è ampiamente sufficiente per i volumi
+  attuali del negozio
 
 ---
 
