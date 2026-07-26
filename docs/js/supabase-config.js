@@ -6,8 +6,8 @@
    Finche' restano ai valori di esempio, login/registrazione/ordini non
    funzioneranno (il sito lo segnala con un messaggio chiaro).
    ============================================================ */
-const SUPABASE_URL = 'INSERISCI_QUI_IL_TUO_PROJECT_URL';
-const SUPABASE_ANON_KEY = 'INSERISCI_QUI_LA_TUA_ANON_KEY';
+const SUPABASE_URL = 'https://vuvuwvoyphxyrlmlcdgy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_LoxgJbyaqlwdXjpCQ2Sgdg_T3g4iS7_';
 
 const isSupabaseConfigured =
   SUPABASE_URL !== 'INSERISCI_QUI_IL_TUO_PROJECT_URL' &&
