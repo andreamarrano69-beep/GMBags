@@ -89,7 +89,9 @@
                 btn.disabled = false;
                 btn.textContent = 'Accedi';
                 statusEl.style.color = '#c62828';
-                statusEl.textContent = 'Email o password non corrette.';
+                statusEl.textContent = error.message.includes('Email not confirmed')
+                    ? 'Devi prima confermare la tua email: controlla la posta (anche lo spam) e clicca il link ricevuto dopo la registrazione.'
+                    : 'Email o password non corrette.';
                 return;
             }
 
