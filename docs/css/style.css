@@ -94,6 +94,16 @@ header {
   color: var(--primary-gold) !important;
   letter-spacing: 1px;
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+}
+
+.brand-logo {
+  height: 56px;
+  width: 56px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .nav-link {
