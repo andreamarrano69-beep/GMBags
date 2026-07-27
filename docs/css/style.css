@@ -170,6 +170,12 @@ header {
   overflow: hidden;
 }
 
+/* Versione compatta per pagine di servizio (login, contatti, ecc.):
+   l'utente deve arrivare al modulo/contenuto senza dover scorrere. */
+.hero-banner.hero-compact {
+  height: 30vh;
+}
+
 .hero-banner::before {
   content: "";
   position: absolute;
