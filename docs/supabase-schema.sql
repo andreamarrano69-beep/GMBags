@@ -307,3 +307,24 @@ drop policy if exists "Admin aggiorna lo stato dei messaggi" on public.contact_m
 create policy "Admin aggiorna lo stato dei messaggi"
   on public.contact_messages for update
   using (public.is_admin());
+
+-- ============================================================
+-- AGGIORNAMENTO: TRACCIAMENTO ORDINI CON DATE E IMPORTO AUTOMATICI
+-- Aggiunge le colonne per registrare automaticamente quando un ordine
+-- passa a "ordinato", "spedito" e "incassato" (con importo incassato).
+-- Sicura da rieseguire anche piu' di una volta.
+-- ============================================================
+
+alter table public.orders add column if not exists data_ordinato timestamptz;
+alter table public.orders add column if not exists data_spedito timestamptz;
+alter table public.orders add column if not exists data_incassato timestamptz;
+alter table public.orders add column if not exists importo_incassato numeric(10, 2);
+
+-- ------------------------------------------------------------
+-- NUOVO ELENCO STATI (usati da qui in avanti dal sito):
+--   'in attesa'   -> richiesta ricevuta (data = created_at)
+--   'ordinato'    -> confermato con il cliente
+--   'spedito'     -> pacco spedito/consegnato
+--   'incassato'   -> pagamento riscosso (importo salvato in automatico)
+--   'annullato'   -> ordine annullato
+-- ------------------------------------------------------------

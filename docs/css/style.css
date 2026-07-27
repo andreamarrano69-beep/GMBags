@@ -1300,3 +1300,48 @@ footer a:hover {
   color: #666;
   margin-top: 0.3rem;
 }
+
+/* ============================================
+   TAG STATO ORDINE
+   ============================================ */
+.status-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.status-tag--in-attesa {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-tag--ordinato {
+  background: #cfe2ff;
+  color: #084298;
+}
+
+.status-tag--spedito {
+  background: #cff4fc;
+  color: #055160;
+}
+
+.status-tag--incassato {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-tag--annullato {
+  background: #f8d7da;
+  color: #842029;
+}
+
+.order-tracking {
+  font-size: 0.8rem;
+  color: #666;
+  line-height: 1.6;
+}

@@ -1,4 +1,30 @@
 /* ============================================
+   UTILITY: TAG E TRACCIAMENTO STATO ORDINE
+   Condivise tra account.html e admin.html
+   ============================================ */
+function statusTagClass(stato) {
+    return 'status-tag status-tag--' + stato.replace(/\s+/g, '-');
+}
+
+function formatDataBreve(iso) {
+    return new Date(iso).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+}
+
+function trackingHtml(order) {
+    const righe = [];
+    righe.push(`In attesa: ${formatDataBreve(order.created_at)}`);
+    if (order.data_ordinato) righe.push(`Ordinato: ${formatDataBreve(order.data_ordinato)}`);
+    if (order.data_spedito) righe.push(`Spedito: ${formatDataBreve(order.data_spedito)}`);
+    if (order.data_incassato) {
+        const importo = order.importo_incassato != null
+            ? Number(order.importo_incassato).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })
+            : '';
+        righe.push(`Incassato: ${formatDataBreve(order.data_incassato)} ${importo}`);
+    }
+    return righe.join('<br>');
+}
+
+/* ============================================
    GESTIONE CHATBOT
    ============================================ */
 class ChatBot {

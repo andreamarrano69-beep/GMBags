@@ -61,7 +61,7 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="statRevenue">-</div>
-                    <div class="stat-label">Totale Incassato (pagato)</div>
+                    <div class="stat-label">Totale Incassato</div>
                 </div>
             </div>
         </div>
@@ -87,10 +87,11 @@
                             <th>Totale</th>
                             <th>Pagamento</th>
                             <th>Stato</th>
+                            <th>Tracciamento</th>
                         </tr>
                     </thead>
                     <tbody id="adminOrdersBody">
-                        <tr><td colspan="8">Caricamento...</td></tr>
+                        <tr><td colspan="9">Caricamento...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -188,11 +189,22 @@
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
     <script>
-        const STATI_ORDINE = ['in attesa', 'confermato', 'pagato', 'spedito', 'annullato'];
+        const STATI_ORDINE = ['in attesa', 'ordinato', 'spedito', 'incassato', 'annullato'];
         const STATI_MESSAGGIO = ['nuovo', 'risposto'];
 
-        async function updateOrderStatus(orderId, newStatus) {
-            await supabaseClient.from('orders').update({ stato: newStatus }).eq('id', orderId);
+        async function updateOrderStatus(orderId, newStatus, totale) {
+            const updates = { stato: newStatus };
+            const adesso = new Date().toISOString();
+
+            if (newStatus === 'ordinato') updates.data_ordinato = adesso;
+            if (newStatus === 'spedito') updates.data_spedito = adesso;
+            if (newStatus === 'incassato') {
+                updates.data_incassato = adesso;
+                updates.importo_incassato = totale != null ? totale : null;
+            }
+
+            await supabaseClient.from('orders').update(updates).eq('id', orderId);
+            loadOrders();
         }
 
         async function updateMessageStatus(messageId, newStatus) {
@@ -229,7 +241,7 @@
             tbody.innerHTML = '';
 
             if (error) {
-                tbody.innerHTML = '<tr><td colspan="8">Errore nel caricamento degli ordini.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9">Errore nel caricamento degli ordini.</td></tr>';
                 return;
             }
 
@@ -238,13 +250,13 @@
                 orders.filter((o) => o.stato === 'in attesa').length;
 
             const totaleIncassato = orders
-                .filter((o) => o.stato === 'pagato' && o.totale != null)
-                .reduce((sum, o) => sum + Number(o.totale), 0);
+                .filter((o) => o.stato === 'incassato' && o.importo_incassato != null)
+                .reduce((sum, o) => sum + Number(o.importo_incassato), 0);
             document.getElementById('statRevenue').textContent =
                 totaleIncassato.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 
             if (orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8">Nessun ordine ricevuto finora.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9">Nessun ordine ricevuto finora.</td></tr>';
                 return;
             }
 
@@ -265,9 +277,17 @@
                     <td>${totale}</td>
                     <td>${order.metodo_pagamento}</td>
                     <td></td>
+                    <td class="order-tracking">${trackingHtml(order)}</td>
                 `;
 
+                const statoCell = tr.children[7];
+                const badge = document.createElement('span');
+                badge.className = statusTagClass(order.stato);
+                badge.textContent = order.stato;
+                statoCell.appendChild(badge);
+
                 const select = document.createElement('select');
+                select.style.marginTop = '0.4rem';
                 STATI_ORDINE.forEach((stato) => {
                     const option = document.createElement('option');
                     option.value = stato;
@@ -275,8 +295,9 @@
                     if (stato === order.stato) option.selected = true;
                     select.appendChild(option);
                 });
-                select.addEventListener('change', () => updateOrderStatus(order.id, select.value));
-                tr.lastElementChild.appendChild(select);
+                select.addEventListener('change', () => updateOrderStatus(order.id, select.value, order.totale));
+                statoCell.appendChild(document.createElement('br'));
+                statoCell.appendChild(select);
 
                 tbody.appendChild(tr);
             });

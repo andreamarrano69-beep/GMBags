@@ -83,10 +83,11 @@
                             <th>Quantità</th>
                             <th>Totale</th>
                             <th>Stato</th>
+                            <th>Tracciamento</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
-                        <tr><td colspan="5">Caricamento...</td></tr>
+                        <tr><td colspan="6">Caricamento...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -126,12 +127,12 @@
             tbody.innerHTML = '';
 
             if (error) {
-                tbody.innerHTML = '<tr><td colspan="5">Errore nel caricamento degli ordini.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento degli ordini.</td></tr>';
                 return;
             }
 
             if (!orders || orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">Nessun ordine effettuato finora.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6">Nessun ordine effettuato finora.</td></tr>';
                 return;
             }
 
@@ -146,7 +147,8 @@
                     <td>${order.prodotto}</td>
                     <td>${order.quantita}</td>
                     <td>${totale}</td>
-                    <td>${order.stato}</td>
+                    <td><span class="${statusTagClass(order.stato)}">${order.stato}</span></td>
+                    <td class="order-tracking">${trackingHtml(order)}</td>
                 `;
                 tbody.appendChild(tr);
             });
