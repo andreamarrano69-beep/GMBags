@@ -238,3 +238,72 @@ create policy "Admin aggiorna lo stato dei messaggi"
   );
 
 -- STATO MESSAGGIO: 'nuovo' oppure 'risposto'
+
+-- ============================================================
+-- CORREZIONE: funzione is_admin() per evitare ricorsione RLS
+-- Le policy "Admin legge/scrive tutto" controllavano is_admin facendo
+-- una query sulla STESSA tabella profiles su cui erano applicate:
+-- Postgres a volte va in "infinite recursion detected in policy for
+-- relation" e blocca silenziosamente la lettura. Con questa funzione
+-- (SECURITY DEFINER, quindi bypassa le policy quando esegue il
+-- controllo) il problema si risolve. Esegui questa sezione anche se
+-- avevi gia' eseguito tutto il resto: e' sicura da rieseguire.
+-- ============================================================
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select coalesce(
+    (select is_admin from public.profiles where id = auth.uid()),
+    false
+  );
+$$;
+
+drop policy if exists "Admin legge tutti i profili" on public.profiles;
+create policy "Admin legge tutti i profili"
+  on public.profiles for select
+  using (public.is_admin());
+
+drop policy if exists "Admin legge tutti gli ordini" on public.orders;
+create policy "Admin legge tutti gli ordini"
+  on public.orders for select
+  using (public.is_admin());
+
+drop policy if exists "Admin aggiorna tutti gli ordini" on public.orders;
+create policy "Admin aggiorna tutti gli ordini"
+  on public.orders for update
+  using (public.is_admin());
+
+drop policy if exists "Admin legge tutti gli articoli, anche bozze" on public.blog_posts;
+create policy "Admin legge tutti gli articoli, anche bozze"
+  on public.blog_posts for select
+  using (public.is_admin());
+
+drop policy if exists "Admin crea articoli" on public.blog_posts;
+create policy "Admin crea articoli"
+  on public.blog_posts for insert
+  with check (public.is_admin());
+
+drop policy if exists "Admin modifica articoli" on public.blog_posts;
+create policy "Admin modifica articoli"
+  on public.blog_posts for update
+  using (public.is_admin());
+
+drop policy if exists "Admin elimina articoli" on public.blog_posts;
+create policy "Admin elimina articoli"
+  on public.blog_posts for delete
+  using (public.is_admin());
+
+drop policy if exists "Admin legge tutti i messaggi" on public.contact_messages;
+create policy "Admin legge tutti i messaggi"
+  on public.contact_messages for select
+  using (public.is_admin());
+
+drop policy if exists "Admin aggiorna lo stato dei messaggi" on public.contact_messages;
+create policy "Admin aggiorna lo stato dei messaggi"
+  on public.contact_messages for update
+  using (public.is_admin());

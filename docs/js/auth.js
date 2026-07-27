@@ -9,11 +9,15 @@ async function getSessionAndProfile() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) return { session: null, profile: null };
 
-    const { data: profile } = await supabaseClient
+    const { data: profile, error } = await supabaseClient
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
         .single();
+
+    if (error) {
+        console.error('Errore nel caricamento del profilo:', error.message);
+    }
 
     return { session, profile };
 }
