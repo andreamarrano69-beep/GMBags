@@ -131,7 +131,7 @@
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
     <script>
-        function handleContactForm(event) {
+        async function handleContactForm(event) {
             event.preventDefault();
 
             const form = event.target;
@@ -139,39 +139,52 @@
             const btn = document.getElementById('contactSubmitBtn');
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
+            const telefono = document.getElementById('phone').value;
+            const oggetto = document.getElementById('subject').value;
+            const messaggio = document.getElementById('message').value;
 
             btn.disabled = true;
             btn.textContent = 'Invio in corso...';
             statusEl.textContent = '';
 
-            const data = {
-                nome: name,
-                email: email,
-                telefono: document.getElementById('phone').value,
-                oggetto: document.getElementById('subject').value,
-                messaggio: document.getElementById('message').value,
-                _subject: 'Nuovo messaggio dal sito GMBag'
-            };
-
+            // Notifica email immediata (best-effort)
             fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-                body: JSON.stringify(data)
-            })
-                .then((res) => {
-                    if (!res.ok) throw new Error('Invio fallito');
-                    statusEl.style.color = '#2e7d32';
-                    statusEl.textContent = `Grazie ${name}! Il tuo messaggio è stato inviato. Ti risponderemo a ${email} il prima possibile.`;
-                    form.reset();
+                body: JSON.stringify({
+                    nome: name,
+                    email: email,
+                    telefono: telefono,
+                    oggetto: oggetto,
+                    messaggio: messaggio,
+                    _subject: 'Nuovo messaggio dal sito GMBag'
                 })
-                .catch(() => {
-                    statusEl.style.color = '#c62828';
-                    statusEl.textContent = 'Si è verificato un errore. Scrivici direttamente su WhatsApp al +39 392 596 1105 o via email a gmbags@gmail.com.';
-                })
-                .finally(() => {
-                    btn.disabled = false;
-                    btn.textContent = 'Invia Messaggio';
+            }).catch(() => {});
+
+            // Salva il messaggio nel database, cosi' e' visibile nel pannello Admin
+            let salvatoOk = true;
+            if (isSupabaseConfigured) {
+                const { error } = await supabaseClient.from('contact_messages').insert({
+                    nome: name,
+                    email: email,
+                    telefono: telefono,
+                    oggetto: oggetto,
+                    messaggio: messaggio
                 });
+                salvatoOk = !error;
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Invia Messaggio';
+
+            if (salvatoOk) {
+                statusEl.style.color = '#2e7d32';
+                statusEl.textContent = `Grazie ${name}! Il tuo messaggio è stato inviato. Ti risponderemo a ${email} il prima possibile.`;
+                form.reset();
+            } else {
+                statusEl.style.color = '#c62828';
+                statusEl.textContent = 'Si è verificato un errore. Scrivici direttamente su WhatsApp al +39 392 596 1105 o via email a gmbags@gmail.com.';
+            }
         }
     </script>
 </body>

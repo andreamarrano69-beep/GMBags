@@ -129,3 +129,112 @@ create policy "Admin aggiorna tutti gli ordini"
 --     (select id from auth.users where email = 'gmbags@gmail.com');
 --
 -- ------------------------------------------------------------
+
+-- ============================================================
+-- AGGIORNAMENTO: BLOG GESTIBILE + MESSAGGI DI CONTATTO
+-- Se avevi gia' eseguito la parte sopra, puoi incollare ed eseguire
+-- solo questa sezione: e' sicura da eseguire anche piu' di una volta.
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- TABELLA: blog_posts
+-- Articoli del blog, scrivibili solo dall'admin. Chiunque puo' leggere
+-- solo gli articoli pubblicati (pubblicato = true).
+-- ------------------------------------------------------------
+create table if not exists public.blog_posts (
+  id uuid primary key default gen_random_uuid(),
+  titolo text not null,
+  slug text not null unique,
+  estratto text,
+  contenuto text not null,
+  immagine text,
+  pubblicato boolean not null default true,
+  autore_id uuid references auth.users (id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.blog_posts enable row level security;
+
+create policy "Tutti leggono gli articoli pubblicati"
+  on public.blog_posts for select
+  using (pubblicato = true);
+
+create policy "Admin legge tutti gli articoli, anche bozze"
+  on public.blog_posts for select
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.is_admin = true
+    )
+  );
+
+create policy "Admin crea articoli"
+  on public.blog_posts for insert
+  with check (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.is_admin = true
+    )
+  );
+
+create policy "Admin modifica articoli"
+  on public.blog_posts for update
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.is_admin = true
+    )
+  );
+
+create policy "Admin elimina articoli"
+  on public.blog_posts for delete
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.is_admin = true
+    )
+  );
+
+-- ------------------------------------------------------------
+-- TABELLA: contact_messages
+-- Messaggi ricevuti dal modulo Contatti. Chiunque (anche non loggato)
+-- puo' inviarne uno, ma solo l'admin puo' leggerli.
+-- ------------------------------------------------------------
+create table if not exists public.contact_messages (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null,
+  email text not null,
+  telefono text,
+  oggetto text,
+  messaggio text not null,
+  stato text not null default 'nuovo',
+  created_at timestamptz not null default now()
+);
+
+alter table public.contact_messages enable row level security;
+
+create policy "Chiunque puo' inviare un messaggio di contatto"
+  on public.contact_messages for insert
+  to anon, authenticated
+  with check (true);
+
+create policy "Admin legge tutti i messaggi"
+  on public.contact_messages for select
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.is_admin = true
+    )
+  );
+
+create policy "Admin aggiorna lo stato dei messaggi"
+  on public.contact_messages for update
+  using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.is_admin = true
+    )
+  );
+
+-- STATO MESSAGGIO: 'nuovo' oppure 'risposto'

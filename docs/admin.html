@@ -97,6 +97,86 @@
         </div>
     </section>
 
+    <!-- SEZIONE MESSAGGI CONTATTI -->
+    <section class="products-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>Messaggi di Contatto</h2>
+                <p>I messaggi ricevuti dal modulo Contatti del sito</p>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Nome</th>
+                            <th>Contatti</th>
+                            <th>Oggetto</th>
+                            <th>Messaggio</th>
+                            <th>Stato</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminMessagesBody">
+                        <tr><td colspan="6">Caricamento...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEZIONE GESTIONE BLOG -->
+    <section class="features-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>Gestione Blog</h2>
+                <p>Scrivi, modifica o elimina gli articoli pubblicati sul sito</p>
+            </div>
+
+            <form class="contact-form fade-in" id="postForm" style="margin-bottom: 2.5rem;">
+                <input type="hidden" id="postId" value="">
+                <div class="form-group">
+                    <label for="postTitolo">Titolo *</label>
+                    <input type="text" id="postTitolo" required>
+                </div>
+                <div class="form-group">
+                    <label for="postEstratto">Estratto (breve riassunto per l'anteprima)</label>
+                    <input type="text" id="postEstratto">
+                </div>
+                <div class="form-group">
+                    <label for="postContenuto">Testo dell'articolo *</label>
+                    <textarea id="postContenuto" required placeholder="Scrivi qui il testo. Lascia una riga vuota tra un paragrafo e l'altro." style="min-height: 220px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="postImmagine">Immagine (percorso o link, facoltativo)</label>
+                    <input type="text" id="postImmagine" placeholder="es. assets/img/image0.jpeg">
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="postPubblicato" checked> Pubblicato (visibile sul sito)</label>
+                </div>
+                <button type="submit" class="form-submit" id="postSubmitBtn">Pubblica Articolo</button>
+                <button type="button" class="form-submit" id="postCancelBtn" style="display: none; background: #999; margin-top: 0.6rem;">Annulla Modifica</button>
+                <p class="form-status" id="postStatus"></p>
+            </form>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Titolo</th>
+                            <th>Stato</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminPostsBody">
+                        <tr><td colspan="4">Caricamento...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
     <!-- FOOTER -->
     <footer>
         <p>&copy; 2026 GMBag | Tutti i diritti riservati | <a href="privacy.html">Privacy Policy</a></p>
@@ -109,15 +189,28 @@
     <script src="js/main.js"></script>
     <script>
         const STATI_ORDINE = ['in attesa', 'confermato', 'pagato', 'spedito', 'annullato'];
+        const STATI_MESSAGGIO = ['nuovo', 'risposto'];
 
         async function updateOrderStatus(orderId, newStatus) {
             await supabaseClient.from('orders').update({ stato: newStatus }).eq('id', orderId);
         }
 
-        (async () => {
-            const result = await requireAdmin();
-            if (!result) return;
+        async function updateMessageStatus(messageId, newStatus) {
+            await supabaseClient.from('contact_messages').update({ stato: newStatus }).eq('id', messageId);
+        }
 
+        function slugify(text) {
+            return text
+                .toString()
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+
+        async function loadOrders() {
             const { data: profiles } = await supabaseClient
                 .from('profiles')
                 .select('id, nome, telefono');
@@ -186,6 +279,178 @@
                 tr.lastElementChild.appendChild(select);
 
                 tbody.appendChild(tr);
+            });
+        }
+
+        async function loadMessages() {
+            const { data: messages, error } = await supabaseClient
+                .from('contact_messages')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('adminMessagesBody');
+            tbody.innerHTML = '';
+
+            if (error) {
+                tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento dei messaggi.</td></tr>';
+                return;
+            }
+
+            if (!messages || messages.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">Nessun messaggio ricevuto finora.</td></tr>';
+                return;
+            }
+
+            messages.forEach((msg) => {
+                const data = new Date(msg.created_at).toLocaleDateString('it-IT');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${data}</td>
+                    <td>${msg.nome}</td>
+                    <td><a href="mailto:${msg.email}">${msg.email}</a>${msg.telefono ? '<br>' + msg.telefono : ''}</td>
+                    <td>${msg.oggetto || ''}</td>
+                    <td style="max-width: 280px;">${msg.messaggio}</td>
+                    <td></td>
+                `;
+
+                const select = document.createElement('select');
+                STATI_MESSAGGIO.forEach((stato) => {
+                    const option = document.createElement('option');
+                    option.value = stato;
+                    option.textContent = stato;
+                    if (stato === msg.stato) option.selected = true;
+                    select.appendChild(option);
+                });
+                select.addEventListener('change', () => updateMessageStatus(msg.id, select.value));
+                tr.lastElementChild.appendChild(select);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function loadPosts() {
+            const { data: posts, error } = await supabaseClient
+                .from('blog_posts')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('adminPostsBody');
+            tbody.innerHTML = '';
+
+            if (error) {
+                tbody.innerHTML = '<tr><td colspan="4">Errore nel caricamento degli articoli.</td></tr>';
+                return;
+            }
+
+            if (!posts || posts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">Nessun articolo ancora. Scrivi il primo qui sopra.</td></tr>';
+                return;
+            }
+
+            posts.forEach((post) => {
+                const data = new Date(post.created_at).toLocaleDateString('it-IT');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${data}</td>
+                    <td>${post.titolo}</td>
+                    <td>${post.pubblicato ? 'Pubblicato' : 'Bozza'}</td>
+                    <td></td>
+                `;
+
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Modifica';
+                editBtn.className = 'form-submit';
+                editBtn.style.cssText = 'width:auto; padding:6px 14px; font-size:0.8rem; margin-right:0.5rem;';
+                editBtn.addEventListener('click', () => startEditPost(post));
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Elimina';
+                deleteBtn.className = 'form-submit';
+                deleteBtn.style.cssText = 'width:auto; padding:6px 14px; font-size:0.8rem; background:#c62828;';
+                deleteBtn.addEventListener('click', () => deletePost(post.id));
+
+                tr.lastElementChild.appendChild(editBtn);
+                tr.lastElementChild.appendChild(deleteBtn);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function startEditPost(post) {
+            document.getElementById('postId').value = post.id;
+            document.getElementById('postTitolo').value = post.titolo;
+            document.getElementById('postEstratto').value = post.estratto || '';
+            document.getElementById('postContenuto').value = post.contenuto;
+            document.getElementById('postImmagine').value = post.immagine || '';
+            document.getElementById('postPubblicato').checked = post.pubblicato;
+            document.getElementById('postSubmitBtn').textContent = 'Aggiorna Articolo';
+            document.getElementById('postCancelBtn').style.display = 'inline-block';
+            window.scrollTo({ top: document.getElementById('postForm').offsetTop - 100, behavior: 'smooth' });
+        }
+
+        function resetPostForm() {
+            document.getElementById('postForm').reset();
+            document.getElementById('postId').value = '';
+            document.getElementById('postPubblicato').checked = true;
+            document.getElementById('postSubmitBtn').textContent = 'Pubblica Articolo';
+            document.getElementById('postCancelBtn').style.display = 'none';
+        }
+
+        async function deletePost(postId) {
+            if (!confirm('Eliminare questo articolo? L\'azione non si può annullare.')) return;
+            await supabaseClient.from('blog_posts').delete().eq('id', postId);
+            loadPosts();
+        }
+
+        (async () => {
+            const result = await requireAdmin();
+            if (!result) return;
+
+            loadOrders();
+            loadMessages();
+            loadPosts();
+
+            document.getElementById('postCancelBtn').addEventListener('click', resetPostForm);
+
+            document.getElementById('postForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const statusEl = document.getElementById('postStatus');
+                const postId = document.getElementById('postId').value;
+                const titolo = document.getElementById('postTitolo').value.trim();
+                const estratto = document.getElementById('postEstratto').value.trim();
+                const contenuto = document.getElementById('postContenuto').value.trim();
+                const immagine = document.getElementById('postImmagine').value.trim();
+                const pubblicato = document.getElementById('postPubblicato').checked;
+
+                statusEl.textContent = '';
+
+                if (postId) {
+                    const { error } = await supabaseClient
+                        .from('blog_posts')
+                        .update({ titolo, estratto, contenuto, immagine, pubblicato, updated_at: new Date().toISOString() })
+                        .eq('id', postId);
+                    if (error) {
+                        statusEl.style.color = '#c62828';
+                        statusEl.textContent = 'Errore: ' + error.message;
+                        return;
+                    }
+                    statusEl.style.color = '#2e7d32';
+                    statusEl.textContent = 'Articolo aggiornato!';
+                } else {
+                    const slug = slugify(titolo) + '-' + Date.now().toString(36).slice(-4);
+                    const { error } = await supabaseClient
+                        .from('blog_posts')
+                        .insert({ titolo, slug, estratto, contenuto, immagine, pubblicato, autore_id: result.session.user.id });
+                    if (error) {
+                        statusEl.style.color = '#c62828';
+                        statusEl.textContent = 'Errore: ' + error.message;
+                        return;
+                    }
+                    statusEl.style.color = '#2e7d32';
+                    statusEl.textContent = 'Articolo pubblicato!';
+                }
+
+                resetPostForm();
+                loadPosts();
             });
         })();
     </script>
