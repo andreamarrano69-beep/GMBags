@@ -212,7 +212,7 @@ class NewsletterForm {
         })
             .then(() => {
                 button.textContent = '✓ Iscritto!';
-                button.style.background = '#d4af37';
+                button.style.background = '#b9a184';
             })
             .catch(() => {
                 button.textContent = 'Errore, riprova';

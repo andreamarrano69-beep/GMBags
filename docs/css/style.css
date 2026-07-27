@@ -3,8 +3,8 @@
    ============================================ */
 :root {
   --primary-dark: #1a1a1a;
-  --primary-gold: #d4af37;
-  --primary-light: #f5f5f5;
+  --accent-natural: #b9a184;
+  --primary-light: #f7f4ef;
   --accent-warm: #8b7355;
   --text-dark: #333333;
   --text-light: #666666;
@@ -95,7 +95,7 @@ header {
 .navbar-brand {
   font-size: 1.8rem;
   font-weight: 700;
-  color: var(--primary-gold) !important;
+  color: var(--accent-natural) !important;
   letter-spacing: 1px;
   text-transform: uppercase;
   display: inline-flex;
@@ -139,7 +139,7 @@ header {
   left: 0;
   width: 0;
   height: 2px;
-  background: var(--primary-gold);
+  background: var(--accent-natural);
   transition: width 0.3s ease;
 }
 
@@ -149,7 +149,7 @@ header {
 }
 
 .nav-link:hover {
-  color: var(--primary-gold) !important;
+  color: var(--accent-natural) !important;
 }
 
 /* ============================================
@@ -198,6 +198,11 @@ header {
   animation: fadeInUp 1s ease-out 0.2s both;
 }
 
+.hero-banner h1.font-baloo {
+  font-family: "Baloo 2", "Segoe UI", sans-serif;
+  letter-spacing: 0.01em;
+}
+
 .hero-banner p {
   color: rgba(255, 255, 255, 0.95);
   font-size: 1.3rem;
@@ -207,7 +212,7 @@ header {
 }
 
 .hero-banner .btn-primary {
-  background: var(--primary-gold);
+  background: var(--accent-natural);
   border: none;
   color: var(--primary-dark);
   padding: 15px 45px;
@@ -225,7 +230,7 @@ header {
 .hero-banner .btn-primary:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-strong);
-  background: #e5c158;
+  background: #c7b294;
 }
 
 /* ============================================
@@ -259,7 +264,7 @@ section {
   transform: translateX(-50%);
   width: 60px;
   height: 3px;
-  background: var(--primary-gold);
+  background: var(--accent-natural);
   border-radius: 2px;
 }
 
@@ -286,7 +291,7 @@ section {
 .feature-box {
   padding: 2.5rem;
   background: var(--primary-light);
-  border-left: 4px solid var(--primary-gold);
+  border-left: 4px solid var(--accent-natural);
   border-radius: 8px;
   transition: var(--transition-smooth);
   box-shadow: var(--shadow-soft);
@@ -386,7 +391,7 @@ section {
 
 .product-price {
   font-size: 1.5rem;
-  color: var(--primary-gold);
+  color: var(--accent-natural);
   font-weight: 700;
   margin-bottom: 0.8rem;
 }
@@ -414,7 +419,7 @@ section {
 }
 
 .btn-cart:hover {
-  background: var(--primary-gold);
+  background: var(--accent-natural);
   color: var(--primary-dark);
   transform: translateY(-2px);
 }
@@ -468,7 +473,7 @@ section {
 
 .testimonial-author {
   font-weight: 600;
-  color: var(--primary-gold);
+  color: var(--accent-natural);
   font-size: 0.95rem;
 }
 
@@ -510,13 +515,13 @@ section {
 
 .newsletter-form input:focus {
   outline: none;
-  border-color: var(--primary-gold);
+  border-color: var(--accent-natural);
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
 .newsletter-form button {
   padding: 15px 40px;
-  background: var(--primary-gold);
+  background: var(--accent-natural);
   color: var(--primary-dark);
   border: none;
   border-radius: 6px;
@@ -528,7 +533,7 @@ section {
 }
 
 .newsletter-form button:hover {
-  background: #e5c158;
+  background: #c7b294;
   transform: translateY(-2px);
 }
 
@@ -538,7 +543,7 @@ section {
 .cta-section {
   background: linear-gradient(
     135deg,
-    var(--primary-gold) 0%,
+    var(--accent-natural) 0%,
     var(--accent-warm) 100%
   );
   color: white;
@@ -587,7 +592,7 @@ footer p {
 }
 
 footer a {
-  color: var(--primary-gold);
+  color: var(--accent-natural);
   text-decoration: none;
   transition: var(--transition-smooth);
 }
@@ -613,7 +618,7 @@ footer a:hover {
 }
 
 .chatbot-header {
-  background: var(--primary-gold);
+  background: var(--accent-natural);
   color: var(--primary-dark);
   padding: 1rem;
   display: flex;
@@ -668,7 +673,7 @@ footer a:hover {
 }
 
 .user-message {
-  background: var(--primary-gold);
+  background: var(--accent-natural);
   color: var(--primary-dark);
   margin-left: auto;
   max-width: 80%;
@@ -699,12 +704,12 @@ footer a:hover {
 
 .chatbot-input input:focus {
   outline: none;
-  border-color: var(--primary-gold);
+  border-color: var(--accent-natural);
 }
 
 .chatbot-input button {
   padding: 0.8rem 1.2rem;
-  background: var(--primary-gold);
+  background: var(--accent-natural);
   color: var(--primary-dark);
   border: none;
   border-radius: 6px;
@@ -714,7 +719,7 @@ footer a:hover {
 }
 
 .chatbot-input button:hover {
-  background: #e5c158;
+  background: #c7b294;
 }
 
 /* ============================================
@@ -792,7 +797,7 @@ footer a:hover {
 
 .price-label {
   margin-top: 1rem;
-  color: var(--primary-gold);
+  color: var(--accent-natural);
   font-weight: 600;
 }
 
@@ -1029,7 +1034,7 @@ footer a:hover {
 }
 
 .order-modal .order-product-name {
-  color: var(--primary-gold);
+  color: var(--accent-natural);
   font-weight: 600;
   margin-bottom: 1.5rem;
 }
@@ -1059,7 +1064,7 @@ footer a:hover {
 .order-modal input:focus,
 .order-modal textarea:focus {
   outline: none;
-  border-color: var(--primary-gold);
+  border-color: var(--accent-natural);
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
@@ -1071,7 +1076,7 @@ footer a:hover {
 .order-modal-submit {
   width: 100%;
   padding: 14px;
-  background: var(--primary-gold);
+  background: var(--accent-natural);
   color: var(--primary-dark);
   border: none;
   border-radius: 6px;
@@ -1084,7 +1089,7 @@ footer a:hover {
 }
 
 .order-modal-submit:hover {
-  background: #e5c158;
+  background: #c7b294;
 }
 
 .order-modal-submit:disabled {
@@ -1149,7 +1154,7 @@ footer a:hover {
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #d4af37;
+  border-color: var(--accent-natural);
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
@@ -1161,7 +1166,7 @@ footer a:hover {
 .form-submit {
   width: 100%;
   padding: 15px;
-  background: #d4af37;
+  background: var(--accent-natural);
   color: #1a1a1a;
   border: none;
   border-radius: 6px;
@@ -1174,7 +1179,7 @@ footer a:hover {
 }
 
 .form-submit:hover {
-  background: #e5c158;
+  background: #c7b294;
   transform: translateY(-2px);
 }
 
@@ -1197,7 +1202,7 @@ footer a:hover {
 }
 
 .form-footnote a {
-  color: #d4af37;
+  color: var(--accent-natural);
   font-weight: 600;
   text-decoration: none;
 }
@@ -1221,7 +1226,7 @@ footer a:hover {
 }
 
 .contact-item h3 {
-  color: #d4af37;
+  color: var(--accent-natural);
   margin-bottom: 1rem;
 }
 
@@ -1282,7 +1287,7 @@ footer a:hover {
 .stat-card .stat-value {
   font-size: 2.2rem;
   font-weight: 700;
-  color: #d4af37;
+  color: var(--accent-natural);
 }
 
 .stat-card .stat-label {

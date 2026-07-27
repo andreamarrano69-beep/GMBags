@@ -29,7 +29,7 @@ docs/
 ## 🎨 Miglioramenti Principali
 
 ### 1. **Design Premium**
-- **Nuova Palette Colori**: Oro (#d4af37), Nero (#1a1a1a), Bianco e Grigio Caldo
+- **Nuova Palette Colori**: Nero (#1a1a1a), Bianco/Crema e Tortora Naturale (#b9a184)
 - **Tipografia Raffinata**: Font moderni e leggibili con gerarchia visiva migliorata
 - **Animazioni Fluide**: Transizioni smooth e effetti hover eleganti
 
@@ -123,9 +123,9 @@ Modifica le variabili CSS in `css/style.css`:
 ```css
 :root {
     --primary-dark: #1a1a1a;      /* Colore principale scuro */
-    --primary-gold: #d4af37;       /* Colore oro accento */
-    --primary-light: #f5f5f5;      /* Colore di sfondo chiaro */
-    --accent-warm: #8b7355;        /* Colore caldo accento */
+    --accent-natural: #b9a184;    /* Accento tortora naturale */
+    --primary-light: #f7f4ef;     /* Colore di sfondo chiaro (crema) */
+    --accent-warm: #8b7355;       /* Colore caldo accento (sfondo hero) */
     /* ... altre variabili */
 }
 ```
