@@ -266,9 +266,29 @@ document.addEventListener('DOMContentLoaded', () => {
     new StickyNav();
     new NewsletterForm();
     initSocialLinks();
+    initNavbarToggle();
 
     console.log('✓ GMBag - Sito caricato correttamente');
 });
+
+/* ============================================
+   MENU MOBILE (hamburger)
+   ============================================ */
+function initNavbarToggle() {
+    const toggle = document.getElementById('navbarToggle');
+    const nav = document.querySelector('.navbar-nav');
+    if (!toggle || !nav) return;
+
+    toggle.addEventListener('click', () => {
+        nav.classList.toggle('open');
+    });
+
+    nav.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') {
+            nav.classList.remove('open');
+        }
+    });
+}
 
 /* ============================================
    UTILITY FUNCTIONS
