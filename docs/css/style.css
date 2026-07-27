@@ -95,7 +95,7 @@ header {
 .navbar-brand {
   font-size: 1.8rem;
   font-weight: 700;
-  color: var(--accent-natural) !important;
+  color: var(--primary-dark) !important;
   letter-spacing: 1px;
   text-transform: uppercase;
   display: inline-flex;
