@@ -328,16 +328,9 @@ function scrollToProducts() {
 
 /* ============================================
    PREZZI PRODOTTO
-   Inserisci qui il prezzo unitario (in euro) di ogni prodotto quando e'
-   deciso. Finche' resta "null", il sito mostra "prezzo da confermare" e
-   il totale verra' comunicato via email invece di essere calcolato.
+   I prezzi ora arrivano dal database (tabella "prodotti", gestibile
+   dall'admin) e vengono passati direttamente a openOrderModal().
    ============================================ */
-const PRODUCT_PRICES = {
-    'Pochette Nera con Catena': null,
-    'Clutch Lilla': null,
-    'Pochette Panna': null,
-    'Borsa Senape a Tracolla': null
-};
 
 function formatEuro(amount) {
     return amount.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
@@ -399,8 +392,8 @@ function buildOrderModal() {
 
 function updateOrderTotal() {
     const totalEl = document.getElementById('orderTotal');
-    const productName = document.getElementById('orderForm').dataset.product;
-    const unitPrice = PRODUCT_PRICES[productName];
+    const priceRaw = document.getElementById('orderForm').dataset.price;
+    const unitPrice = priceRaw === '' ? null : Number(priceRaw);
     const qtyInput = document.getElementById('orderQuantity');
     const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
     qtyInput.value = qty;
@@ -442,7 +435,7 @@ function showLoginRequiredModal(productName) {
     modal.classList.add('active');
 }
 
-async function openOrderModal(productName) {
+async function openOrderModal(productName, price) {
     if (!isSupabaseConfigured) {
         alert('Il sistema di account e ordini non è ancora attivo su questo sito. Contattaci direttamente per informazioni su questo prodotto.');
         return;
@@ -457,6 +450,7 @@ async function openOrderModal(productName) {
     buildOrderModal();
     document.getElementById('orderProductName').textContent = `Prodotto: ${productName}`;
     document.getElementById('orderForm').dataset.product = productName;
+    document.getElementById('orderForm').dataset.price = (price == null ? '' : price);
     document.getElementById('orderModalStatus').textContent = '';
     document.getElementById('orderQuantity').value = 1;
     document.getElementById('orderName').value = profile ? profile.nome : '';
@@ -482,7 +476,8 @@ async function handleOrderSubmit(e) {
     const phone = document.getElementById('orderPhone').value;
     const message = document.getElementById('orderMessage').value;
     const qty = Math.max(1, parseInt(document.getElementById('orderQuantity').value, 10) || 1);
-    const unitPrice = PRODUCT_PRICES[productName];
+    const priceRaw = form.dataset.price;
+    const unitPrice = priceRaw === '' ? null : Number(priceRaw);
     const totaleNumerico = unitPrice == null ? null : unitPrice * qty;
     const totaleTesto = unitPrice == null ? 'da confermare' : formatEuro(totaleNumerico);
 
@@ -538,4 +533,59 @@ async function handleOrderSubmit(e) {
     btn.disabled = false;
     btn.textContent = 'Invia Richiesta';
     setTimeout(closeOrderModal, 3000);
+}
+
+/* ============================================
+   CATALOGO PRODOTTI (letto dalla tabella "prodotti")
+   Usato sia in index.html (solo in_evidenza) che in prodotti.html
+   (tutti i prodotti attivi).
+   ============================================ */
+function productCardHtml(product) {
+    const priceHtml = product.prezzo != null
+        ? formatEuro(Number(product.prezzo))
+        : 'Scrivici per il prezzo';
+    const img = product.immagine || 'assets/img/logo.jpg';
+    const nomeAttr = product.nome.replace(/'/g, "\\'");
+    const priceArg = product.prezzo != null ? Number(product.prezzo) : 'null';
+    return `
+        <div class="product-card fade-in">
+            <div class="product-image">
+                <img src="${img}" alt="${product.nome}">
+            </div>
+            <div class="product-info">
+                <div class="product-name">${product.nome}</div>
+                <div class="product-price">${priceHtml}</div>
+                <p class="product-description">${product.descrizione || ''}</p>
+                <button class="btn-cart" onclick="openOrderModal('${nomeAttr}', ${priceArg})">
+                    Ordina via Email
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+async function loadProducts(containerId, { onlyFeatured = false } = {}) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (!isSupabaseConfigured) {
+        container.innerHTML = '<p>Il catalogo non è ancora disponibile. Contattaci per informazioni sui prodotti.</p>';
+        return;
+    }
+
+    let query = supabaseClient.from('prodotti').select('*').eq('attivo', true);
+    if (onlyFeatured) query = query.eq('in_evidenza', true);
+    const { data: products, error } = await query.order('created_at', { ascending: true });
+
+    if (error) {
+        container.innerHTML = '<p>Errore nel caricamento dei prodotti.</p>';
+        return;
+    }
+
+    if (!products || products.length === 0) {
+        container.innerHTML = '<p>Nuovi modelli in arrivo presto! Scrivici per sapere cosa abbiamo di disponibile in questo momento.</p>';
+        return;
+    }
+
+    container.innerHTML = products.map(productCardHtml).join('');
 }

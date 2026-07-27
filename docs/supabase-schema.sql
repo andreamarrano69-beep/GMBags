@@ -328,3 +328,61 @@ alter table public.orders add column if not exists importo_incassato numeric(10,
 --   'incassato'   -> pagamento riscosso (importo salvato in automatico)
 --   'annullato'   -> ordine annullato
 -- ------------------------------------------------------------
+
+-- ============================================================
+-- AGGIORNAMENTO: PRODOTTI GESTIBILI DA ADMIN + SPESE DI SPEDIZIONE
+-- Sposta i prodotti dal codice del sito a una tabella nel database,
+-- cosi' l'admin puo' modificare i prezzi e aggiungerne di nuovi dal
+-- pannello Admin senza bisogno del mio aiuto. Aggiunge anche le spese
+-- di spedizione sugli ordini. Sicura da rieseguire piu' di una volta.
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- TABELLA: prodotti
+-- Chiunque puo' leggere solo i prodotti attivi (attivo = true).
+-- Solo l'admin puo' creare/modificare/eliminare prodotti.
+-- ------------------------------------------------------------
+create table if not exists public.prodotti (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null,
+  descrizione text,
+  prezzo numeric(10, 2),
+  immagine text,
+  in_evidenza boolean not null default false,
+  attivo boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table public.prodotti enable row level security;
+
+drop policy if exists "Tutti leggono i prodotti attivi" on public.prodotti;
+create policy "Tutti leggono i prodotti attivi"
+  on public.prodotti for select
+  using (attivo = true);
+
+drop policy if exists "Admin legge tutti i prodotti" on public.prodotti;
+create policy "Admin legge tutti i prodotti"
+  on public.prodotti for select
+  using (public.is_admin());
+
+drop policy if exists "Admin crea prodotti" on public.prodotti;
+create policy "Admin crea prodotti"
+  on public.prodotti for insert
+  with check (public.is_admin());
+
+drop policy if exists "Admin modifica prodotti" on public.prodotti;
+create policy "Admin modifica prodotti"
+  on public.prodotti for update
+  using (public.is_admin());
+
+drop policy if exists "Admin elimina prodotti" on public.prodotti;
+create policy "Admin elimina prodotti"
+  on public.prodotti for delete
+  using (public.is_admin());
+
+-- ------------------------------------------------------------
+-- ORDINI: spese di spedizione
+-- Importo che l'admin puo' inserire per ordine; viene sommato al
+-- totale quando l'ordine viene segnato come "incassato".
+-- ------------------------------------------------------------
+alter table public.orders add column if not exists spese_spedizione numeric(10, 2) not null default 0;

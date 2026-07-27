@@ -95,88 +95,9 @@
           <p>Tutti i nostri prodotti disponibili</p>
         </div>
 
-        <div class="products-grid">
-          <!-- Prodotto 1 -->
-          <div class="product-card fade-in">
-            <div class="product-image">
-              <img src="assets/img/image0.jpeg" alt="Pochette Nera con Catena" />
-            </div>
-            <div class="product-info">
-              <div class="product-name">Pochette Nera con Catena</div>
-              <div class="product-price">Scrivici per il prezzo</div>
-              <p class="product-description">
-                Pochette all'uncinetto nera con tracolla a catena dorata.
-                Fatta interamente a mano.
-              </p>
-              <button class="btn-cart" onclick="openOrderModal('Pochette Nera con Catena')">
-                Ordina via Email
-              </button>
-            </div>
-          </div>
-
-          <!-- Prodotto 2 -->
-          <div class="product-card fade-in">
-            <div class="product-image">
-              <img src="assets/img/image1.jpeg" alt="Clutch Lilla" />
-            </div>
-            <div class="product-info">
-              <div class="product-name">Clutch Lilla</div>
-              <div class="product-price">Scrivici per il prezzo</div>
-              <p class="product-description">
-                Clutch all'uncinetto color lilla, morbida e capiente.
-              </p>
-              <button
-                class="btn-cart"
-                onclick="openOrderModal('Clutch Lilla')"
-              >
-                Ordina via Email
-              </button>
-            </div>
-          </div>
-
-          <!-- Prodotto 3 -->
-          <div class="product-card fade-in">
-            <div class="product-image">
-              <img src="assets/img/image2.jpeg" alt="Pochette Panna" />
-            </div>
-            <div class="product-info">
-              <div class="product-name">Pochette Panna</div>
-              <div class="product-price">Scrivici per il prezzo</div>
-              <p class="product-description">
-                Pochette all'uncinetto color panna, elegante e versatile.
-              </p>
-              <button
-                class="btn-cart"
-                onclick="openOrderModal('Pochette Panna')"
-              >
-                Ordina via Email
-              </button>
-            </div>
-          </div>
-
-          <!-- Prodotto 4 -->
-          <div class="product-card fade-in">
-            <div class="product-image">
-              <img src="assets/img/image4.jpeg" alt="Borsa Senape a Tracolla" />
-            </div>
-            <div class="product-info">
-              <div class="product-name">Borsa Senape a Tracolla</div>
-              <div class="product-price">Scrivici per il prezzo</div>
-              <p class="product-description">
-                Borsa all'uncinetto color senape con tracolla a catena
-                dorata.
-              </p>
-              <button class="btn-cart" onclick="openOrderModal('Borsa Senape a Tracolla')">
-                Ordina via Email
-              </button>
-            </div>
-          </div>
+        <div class="products-grid" id="products-section-full">
+          <p>Caricamento prodotti...</p>
         </div>
-
-        <p class="text-center" style="margin-top: 2rem; color: #666;">
-          Nuovi modelli in arrivo presto! Scrivici per sapere cosa abbiamo
-          di disponibile in questo momento.
-        </p>
       </div>
     </section>
 
@@ -218,5 +139,8 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        loadProducts('products-section-full');
+    </script>
   </body>
 </html>
