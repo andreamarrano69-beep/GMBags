@@ -183,7 +183,7 @@ header {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url("assets/img/image0.jpeg") center/cover;
+  background: url("../assets/img/image0.jpeg") center/cover;
   opacity: 0.15;
   z-index: 1;
 }

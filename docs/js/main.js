@@ -548,7 +548,7 @@ function productCardHtml(product) {
     const nomeAttr = product.nome.replace(/'/g, "\\'");
     const priceArg = product.prezzo != null ? Number(product.prezzo) : 'null';
     return `
-        <div class="product-card fade-in">
+        <div class="product-card">
             <div class="product-image">
                 <img src="${img}" alt="${product.nome}">
             </div>
