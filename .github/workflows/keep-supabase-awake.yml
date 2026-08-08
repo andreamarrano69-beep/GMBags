@@ -1,0 +1,24 @@
+name: Tieni sveglio Supabase
+
+# I progetti Supabase gratuiti vanno in pausa dopo 7 giorni senza
+# nessuna chiamata al database. Questo controllo, una volta a
+# settimana, fa una semplice lettura pubblica (gli stessi dati che
+# vede chiunque visiti il sito) solo per mantenere il progetto attivo.
+on:
+  schedule:
+    - cron: "0 8 * * 1" # ogni lunedi' alle 08:00 UTC
+  workflow_dispatch: {} # permette anche di avviarlo a mano da GitHub
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chiamata di lettura al database
+        run: |
+          curl -sS -f \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            "${SUPABASE_URL}/rest/v1/prodotti?select=id&limit=1"
+        env:
+          SUPABASE_URL: https://vuvuwvoyphxyrlmlcdgy.supabase.co
+          SUPABASE_ANON_KEY: sb_publishable_LoxgJbyaqlwdXjpCQ2Sgdg_T3g4iS7_
