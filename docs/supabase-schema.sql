@@ -582,3 +582,93 @@ drop trigger if exists ripristina_magazzino_su_annullamento on public.orders;
 create trigger ripristina_magazzino_su_annullamento
   after update on public.orders
   for each row execute procedure public.ripristina_magazzino_su_annullamento();
+
+-- ============================================================
+-- AGGIORNAMENTO: GESTIONE UTENTI E RISPOSTE CHATBOT DA ADMIN
+-- Sicura da rieseguire piu' di una volta.
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- PROFILES: salva anche l'email (comoda da mostrare in Admin senza
+-- dover interrogare auth.users, che il sito non puo' leggere
+-- direttamente). Viene popolata automaticamente alla registrazione;
+-- per chi si era gia' registrato prima di questo aggiornamento,
+-- l'UPDATE qui sotto la recupera una volta sola da auth.users.
+-- ------------------------------------------------------------
+alter table public.profiles add column if not exists email text;
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (id, nome, telefono, email)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data ->> 'nome', ''),
+    new.raw_user_meta_data ->> 'telefono',
+    new.email
+  );
+  return new;
+end;
+$$;
+
+update public.profiles p
+  set email = au.email
+  from auth.users au
+  where p.id = au.id and p.email is null;
+
+-- ------------------------------------------------------------
+-- PROFILES: l'admin puo' ora anche AGGIORNARE i profili altrui (fino
+-- ad oggi poteva solo leggerli), per poter promuovere/rimuovere altri
+-- admin dal pannello Gestione Utenti. Il trigger anti-escalation
+-- creato in precedenza continua a impedire che un utente NON admin
+-- modifichi da solo la propria colonna is_admin.
+-- ------------------------------------------------------------
+drop policy if exists "Admin aggiorna tutti i profili" on public.profiles;
+create policy "Admin aggiorna tutti i profili"
+  on public.profiles for update
+  using (public.is_admin());
+
+-- ------------------------------------------------------------
+-- TABELLA: bot_risposte
+-- Le risposte automatiche del chatbot, modificabili dall'admin invece
+-- che scritte nel codice. "predefinita" = la risposta usata quando
+-- nessuna parola chiave corrisponde al messaggio scritto dal cliente.
+-- ------------------------------------------------------------
+create table if not exists public.bot_risposte (
+  id uuid primary key default gen_random_uuid(),
+  parola_chiave text not null default '',
+  risposta text not null,
+  predefinita boolean not null default false,
+  attivo boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table public.bot_risposte enable row level security;
+
+drop policy if exists "Tutti leggono le risposte attive" on public.bot_risposte;
+create policy "Tutti leggono le risposte attive"
+  on public.bot_risposte for select
+  using (attivo = true);
+
+drop policy if exists "Admin legge tutte le risposte" on public.bot_risposte;
+create policy "Admin legge tutte le risposte"
+  on public.bot_risposte for select
+  using (public.is_admin());
+
+drop policy if exists "Admin crea risposte" on public.bot_risposte;
+create policy "Admin crea risposte"
+  on public.bot_risposte for insert
+  with check (public.is_admin());
+
+drop policy if exists "Admin modifica risposte" on public.bot_risposte;
+create policy "Admin modifica risposte"
+  on public.bot_risposte for update
+  using (public.is_admin());
+
+drop policy if exists "Admin elimina risposte" on public.bot_risposte;
+create policy "Admin elimina risposte"
+  on public.bot_risposte for delete
+  using (public.is_admin());

@@ -52,8 +52,10 @@ class ChatBot {
         this.sendBtn = document.getElementById('sendBtn');
         this.userInput = document.getElementById('userInput');
         this.chatbotMessages = document.querySelector('.chatbot-messages');
-        
+        this.risposte = null;
+
         this.init();
+        this.caricaRisposte();
     }
 
     init() {
@@ -68,6 +70,15 @@ class ChatBot {
                 if (e.key === 'Enter') this.sendMessage();
             });
         }
+    }
+
+    async caricaRisposte() {
+        if (typeof isSupabaseConfigured === 'undefined' || !isSupabaseConfigured) return;
+        const { data, error } = await supabaseClient
+            .from('bot_risposte')
+            .select('*')
+            .eq('attivo', true);
+        if (!error && data) this.risposte = data;
     }
 
     toggleChat() {
@@ -104,24 +115,18 @@ class ChatBot {
     }
 
     getBotResponse(userMessage) {
-        const responses = {
-            'ciao': 'Ciao! 👋 Come posso aiutarti oggi?',
-            'prodotti': 'Realizziamo borse e pochette artigianali all\'uncinetto, fatte interamente a mano. Vuoi scoprire la collezione?',
-            'prezzo': 'Il prezzo varia in base al modello. Scrivici su WhatsApp il prodotto che ti interessa e ti rispondiamo subito!',
-            'spedizion': 'Scrivici su WhatsApp o via email per organizzare insieme spedizione o ritiro del tuo ordine.',
-            'contatt': 'Puoi scriverci su WhatsApp al +39 392 596 1105 oppure via email a gmbags@gmail.com. Ti rispondiamo il prima possibile!',
-            'whatsapp': 'Scrivici su WhatsApp al +39 392 596 1105, ti rispondiamo il prima possibile!',
-            'default': 'Grazie per la tua domanda! Per informazioni scrivici su WhatsApp al +39 392 596 1105 o via email a gmbags@gmail.com'
-        };
+        const rispostaSicurezza = 'Grazie per la tua domanda! Per informazioni scrivici su WhatsApp al +39 392 596 1105 o via email a gmbags@gmail.com';
 
-        const lowerMessage = userMessage.toLowerCase();
-        for (const [key, response] of Object.entries(responses)) {
-            if (lowerMessage.includes(key)) {
-                return response;
-            }
+        if (!this.risposte || this.risposte.length === 0) {
+            return rispostaSicurezza;
         }
 
-        return responses.default;
+        const lowerMessage = userMessage.toLowerCase();
+        const trovata = this.risposte.find((r) => r.parola_chiave && lowerMessage.includes(r.parola_chiave.toLowerCase()));
+        if (trovata) return trovata.risposta;
+
+        const predefinita = this.risposte.find((r) => r.predefinita);
+        return predefinita ? predefinita.risposta : rispostaSicurezza;
     }
 
     escapeHtml(text) {

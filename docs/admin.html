@@ -240,6 +240,82 @@
         </div>
     </section>
 
+    <!-- SEZIONE GESTIONE UTENTI -->
+    <section class="products-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>Gestione Utenti</h2>
+                <p>Utenti registrati sul sito. Per eliminare un account usa Supabase (Authentication → Users).</p>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Telefono</th>
+                            <th>Registrato il</th>
+                            <th>Admin</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminUsersBody">
+                        <tr><td colspan="6">Caricamento...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEZIONE GESTIONE CHATBOT -->
+    <section class="features-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>Gestione Chatbot</h2>
+                <p>Modifica le risposte automatiche del bot in basso a destra sul sito</p>
+            </div>
+
+            <form class="contact-form fade-in" id="botForm" style="margin-bottom: 2.5rem;">
+                <input type="hidden" id="botId" value="">
+                <div class="form-group">
+                    <label for="botParola">Parola chiave (il bot risponde se il messaggio del cliente la contiene)</label>
+                    <input type="text" id="botParola" placeholder="es. spedizione">
+                </div>
+                <div class="form-group">
+                    <label for="botRisposta">Risposta *</label>
+                    <textarea id="botRisposta" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="botPredefinita"> Risposta predefinita (usata quando nessuna parola chiave corrisponde)</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="botAttivo" checked> Attiva</label>
+                </div>
+                <button type="submit" class="form-submit" id="botSubmitBtn">Aggiungi Risposta</button>
+                <button type="button" class="form-submit" id="botCancelBtn" style="display: none; background: #999; margin-top: 0.6rem;">Annulla Modifica</button>
+                <p class="form-status" id="botStatus"></p>
+            </form>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Parola Chiave</th>
+                            <th>Risposta</th>
+                            <th>Predefinita</th>
+                            <th>Attiva</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminBotBody">
+                        <tr><td colspan="5">Caricamento...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
     <!-- FOOTER -->
     <footer>
         <p>&copy; 2026 GMBag | Tutti i diritti riservati | <a href="privacy.html">Privacy Policy</a> | <a href="termini.html">Termini di Servizio</a></p>
@@ -583,17 +659,197 @@
             loadAdminProducts();
         }
 
+        async function loadUsers(currentUserId) {
+            const { data: users, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('adminUsersBody');
+            tbody.innerHTML = '';
+
+            if (error) {
+                tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento degli utenti.</td></tr>';
+                return;
+            }
+
+            document.getElementById('statUsers').textContent = (users || []).length;
+
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">Nessun utente registrato.</td></tr>';
+                return;
+            }
+
+            users.forEach((user) => {
+                const data = new Date(user.created_at).toLocaleDateString('it-IT');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${escapeHtml(user.nome)}</td>
+                    <td>${escapeHtml(user.email || '')}</td>
+                    <td>${escapeHtml(user.telefono || '')}</td>
+                    <td>${data}</td>
+                    <td>${user.is_admin ? 'Sì' : 'No'}</td>
+                    <td></td>
+                `;
+
+                const toggleBtn = document.createElement('button');
+                toggleBtn.textContent = user.is_admin ? 'Togli Admin' : 'Rendi Admin';
+                toggleBtn.className = 'form-submit';
+                toggleBtn.style.cssText = 'width:auto; padding:6px 14px; font-size:0.8rem;' + (user.is_admin ? ' background:#c62828;' : '');
+                if (user.id === currentUserId) {
+                    toggleBtn.disabled = true;
+                    toggleBtn.title = 'Non puoi modificare il tuo stesso account da qui';
+                    toggleBtn.style.opacity = '0.5';
+                } else {
+                    toggleBtn.addEventListener('click', () => toggleUserAdmin(user.id, !user.is_admin, currentUserId));
+                }
+
+                tr.lastElementChild.appendChild(toggleBtn);
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function toggleUserAdmin(userId, nuovoValore, currentUserId) {
+            const azione = nuovoValore ? 'rendere admin' : 'togliere i permessi admin a';
+            if (!confirm(`Vuoi davvero ${azione} questo utente?`)) return;
+            await supabaseClient.from('profiles').update({ is_admin: nuovoValore }).eq('id', userId);
+            loadUsers(currentUserId);
+        }
+
+        async function loadBotRisposte() {
+            const { data: risposteData, error } = await supabaseClient
+                .from('bot_risposte')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const risposte = risposteData
+                ? [...risposteData].sort((a, b) => (a.predefinita === b.predefinita ? 0 : a.predefinita ? 1 : -1))
+                : risposteData;
+
+            const tbody = document.getElementById('adminBotBody');
+            tbody.innerHTML = '';
+
+            if (error) {
+                tbody.innerHTML = '<tr><td colspan="5">Errore nel caricamento delle risposte.</td></tr>';
+                return;
+            }
+
+            if (!risposte || risposte.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Nessuna risposta ancora. Aggiungila qui sopra.</td></tr>';
+                return;
+            }
+
+            risposte.forEach((r) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${r.predefinita ? '(nessuna, è la predefinita)' : escapeHtml(r.parola_chiave)}</td>
+                    <td style="max-width: 320px;">${escapeHtml(r.risposta)}</td>
+                    <td>${r.predefinita ? 'Sì' : 'No'}</td>
+                    <td>${r.attivo ? 'Sì' : 'No'}</td>
+                    <td></td>
+                `;
+
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Modifica';
+                editBtn.className = 'form-submit';
+                editBtn.style.cssText = 'width:auto; padding:6px 14px; font-size:0.8rem; margin-right:0.5rem;';
+                editBtn.addEventListener('click', () => startEditBotRisposta(r));
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Elimina';
+                deleteBtn.className = 'form-submit';
+                deleteBtn.style.cssText = 'width:auto; padding:6px 14px; font-size:0.8rem; background:#c62828;';
+                deleteBtn.addEventListener('click', () => deleteBotRisposta(r.id));
+
+                tr.lastElementChild.appendChild(editBtn);
+                tr.lastElementChild.appendChild(deleteBtn);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function startEditBotRisposta(r) {
+            document.getElementById('botId').value = r.id;
+            document.getElementById('botParola').value = r.parola_chiave || '';
+            document.getElementById('botRisposta').value = r.risposta;
+            document.getElementById('botPredefinita').checked = r.predefinita;
+            document.getElementById('botAttivo').checked = r.attivo;
+            document.getElementById('botSubmitBtn').textContent = 'Aggiorna Risposta';
+            document.getElementById('botCancelBtn').style.display = 'inline-block';
+            window.scrollTo({ top: document.getElementById('botForm').offsetTop - 100, behavior: 'smooth' });
+        }
+
+        function resetBotForm() {
+            document.getElementById('botForm').reset();
+            document.getElementById('botId').value = '';
+            document.getElementById('botAttivo').checked = true;
+            document.getElementById('botPredefinita').checked = false;
+            document.getElementById('botSubmitBtn').textContent = 'Aggiungi Risposta';
+            document.getElementById('botCancelBtn').style.display = 'none';
+        }
+
+        async function deleteBotRisposta(id) {
+            if (!confirm('Eliminare questa risposta? L\'azione non si può annullare.')) return;
+            await supabaseClient.from('bot_risposte').delete().eq('id', id);
+            loadBotRisposte();
+        }
+
         (async () => {
             const result = await requireAdmin();
             if (!result) return;
 
             loadOrders();
+            loadUsers(result.session.user.id);
             loadMessages();
             loadPosts();
             loadAdminProducts();
+            loadBotRisposte();
 
             document.getElementById('postCancelBtn').addEventListener('click', resetPostForm);
             document.getElementById('productCancelBtn').addEventListener('click', resetProductForm);
+            document.getElementById('botCancelBtn').addEventListener('click', resetBotForm);
+
+            document.getElementById('botForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const statusEl = document.getElementById('botStatus');
+                const botId = document.getElementById('botId').value;
+                const parolaChiave = document.getElementById('botParola').value.trim();
+                const risposta = document.getElementById('botRisposta').value.trim();
+                const predefinita = document.getElementById('botPredefinita').checked;
+                const attivo = document.getElementById('botAttivo').checked;
+
+                statusEl.textContent = '';
+
+                if (!predefinita && !parolaChiave) {
+                    statusEl.style.color = '#c62828';
+                    statusEl.textContent = 'Inserisci una parola chiave, oppure spunta "Risposta predefinita".';
+                    return;
+                }
+
+                const payload = { parola_chiave: predefinita ? '' : parolaChiave, risposta, predefinita, attivo };
+
+                if (botId) {
+                    const { error } = await supabaseClient.from('bot_risposte').update(payload).eq('id', botId);
+                    if (error) {
+                        statusEl.style.color = '#c62828';
+                        statusEl.textContent = 'Errore: ' + error.message;
+                        return;
+                    }
+                    statusEl.style.color = '#2e7d32';
+                    statusEl.textContent = 'Risposta aggiornata!';
+                } else {
+                    const { error } = await supabaseClient.from('bot_risposte').insert(payload);
+                    if (error) {
+                        statusEl.style.color = '#c62828';
+                        statusEl.textContent = 'Errore: ' + error.message;
+                        return;
+                    }
+                    statusEl.style.color = '#2e7d32';
+                    statusEl.textContent = 'Risposta aggiunta!';
+                }
+
+                resetBotForm();
+                loadBotRisposte();
+            });
 
             document.getElementById('productForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
