@@ -206,6 +206,10 @@
                     <input type="text" id="productImmagine" placeholder="es. assets/img/image0.jpeg">
                 </div>
                 <div class="form-group">
+                    <label for="productQuantita">Quantità disponibile (lascia vuoto per non tracciare il magazzino)</label>
+                    <input type="number" id="productQuantita" min="0" step="1" placeholder="es. 5">
+                </div>
+                <div class="form-group">
                     <label><input type="checkbox" id="productInEvidenza"> In evidenza (mostrato anche in Home)</label>
                 </div>
                 <div class="form-group">
@@ -222,13 +226,14 @@
                         <tr>
                             <th>Nome</th>
                             <th>Prezzo</th>
+                            <th>Magazzino</th>
                             <th>In Evidenza</th>
                             <th>Attivo</th>
                             <th>Azioni</th>
                         </tr>
                     </thead>
                     <tbody id="adminProductsBody">
-                        <tr><td colspan="5">Caricamento...</td></tr>
+                        <tr><td colspan="6">Caricamento...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -507,12 +512,12 @@
             tbody.innerHTML = '';
 
             if (error) {
-                tbody.innerHTML = '<tr><td colspan="5">Errore nel caricamento dei prodotti.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6">Errore nel caricamento dei prodotti.</td></tr>';
                 return;
             }
 
             if (!products || products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">Nessun prodotto ancora. Aggiungilo qui sopra.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6">Nessun prodotto ancora. Aggiungilo qui sopra.</td></tr>';
                 return;
             }
 
@@ -520,10 +525,12 @@
                 const prezzo = product.prezzo != null
                     ? Number(product.prezzo).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })
                     : 'da confermare';
+                const magazzino = product.quantita_disponibile != null ? product.quantita_disponibile : 'non tracciato';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${escapeHtml(product.nome)}</td>
                     <td>${prezzo}</td>
+                    <td>${magazzino}</td>
                     <td>${product.in_evidenza ? 'Sì' : 'No'}</td>
                     <td>${product.attivo ? 'Sì' : 'No'}</td>
                     <td></td>
@@ -553,6 +560,7 @@
             document.getElementById('productDescrizione').value = product.descrizione || '';
             document.getElementById('productPrezzo').value = product.prezzo != null ? product.prezzo : '';
             document.getElementById('productImmagine').value = product.immagine || '';
+            document.getElementById('productQuantita').value = product.quantita_disponibile != null ? product.quantita_disponibile : '';
             document.getElementById('productInEvidenza').checked = product.in_evidenza;
             document.getElementById('productAttivo').checked = product.attivo;
             document.getElementById('productSubmitBtn').textContent = 'Aggiorna Prodotto';
@@ -596,6 +604,8 @@
                 const prezzoRaw = document.getElementById('productPrezzo').value;
                 const prezzo = prezzoRaw === '' ? null : Number(prezzoRaw);
                 const immagine = document.getElementById('productImmagine').value.trim();
+                const quantitaRaw = document.getElementById('productQuantita').value;
+                const quantitaDisponibile = quantitaRaw === '' ? null : parseInt(quantitaRaw, 10);
                 const inEvidenza = document.getElementById('productInEvidenza').checked;
                 const attivo = document.getElementById('productAttivo').checked;
 
@@ -604,7 +614,7 @@
                 if (productId) {
                     const { error } = await supabaseClient
                         .from('prodotti')
-                        .update({ nome, descrizione, prezzo, immagine, in_evidenza: inEvidenza, attivo })
+                        .update({ nome, descrizione, prezzo, immagine, quantita_disponibile: quantitaDisponibile, in_evidenza: inEvidenza, attivo })
                         .eq('id', productId);
                     if (error) {
                         statusEl.style.color = '#c62828';
@@ -616,7 +626,7 @@
                 } else {
                     const { error } = await supabaseClient
                         .from('prodotti')
-                        .insert({ nome, descrizione, prezzo, immagine, in_evidenza: inEvidenza, attivo });
+                        .insert({ nome, descrizione, prezzo, immagine, quantita_disponibile: quantitaDisponibile, in_evidenza: inEvidenza, attivo });
                     if (error) {
                         statusEl.style.color = '#c62828';
                         statusEl.textContent = 'Errore: ' + error.message;

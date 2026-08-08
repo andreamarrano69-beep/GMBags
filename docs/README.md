@@ -131,30 +131,11 @@ Modifica le variabili CSS in `css/style.css`:
 ```
 
 ### Aggiungere Prodotti
-Duplica il blocco `.product-card` in `prodotti.html` e, se e' un bestseller, anche in `index.html`:
-
-```html
-<div class="product-card fade-in">
-    <div class="product-image">
-        <img src="assets/img/image.jpeg" alt="Nome Prodotto">
-    </div>
-    <div class="product-info">
-        <div class="product-name">Nome Prodotto</div>
-        <div class="product-price">Scrivici per il prezzo</div>
-        <p class="product-description">Descrizione...</p>
-        <button class="btn-cart" onclick="openOrderModal('Nome Prodotto')">Ordina via Email</button>
-    </div>
-</div>
-```
-
-Aggiungi anche il prezzo in `js/main.js`, nell'oggetto `PRODUCT_PRICES`:
-
-```javascript
-const PRODUCT_PRICES = {
-    'Nome Prodotto': 49.90,
-    // ...
-};
-```
+I prodotti non sono più scritti nel codice: si gestiscono dal **pannello Admin**
+del sito (sezione "Gestione Prodotti"), che scrive direttamente nella tabella
+`prodotti` di Supabase. Basta accedere come admin, compilare nome, descrizione,
+prezzo, immagine e cliccare "Aggiungi Prodotto" — compare subito su Home
+(se "In evidenza") e/o su Prodotti (se "Attivo").
 
 ### Modificare il Chatbot
 Personalizza le risposte in `js/main.js`, nella funzione `getBotResponse()`:

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Il tuo carrello GMBag: rivedi i prodotti scelti e completa l'ordine.">
+    <title>Carrello - GMBag</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Carrello - GMBag" />
+    <meta property="og:description" content="Il tuo carrello GMBag: rivedi i prodotti scelti e completa l'ordine." />
+    <meta property="og:image" content="https://andreamarrano69-beep.github.io/GMBags/assets/img/logo.jpg" />
+    <meta property="og:url" content="https://andreamarrano69-beep.github.io/GMBags/carrello.html" />
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/jpeg" href="assets/img/logo.jpg">
+</head>
+<body>
+    <!-- HEADER E NAVIGAZIONE -->
+    <header id="site-header">
+        <nav class="navbar">
+            <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+                <a class="navbar-brand" href="index.html"><img src="assets/img/logo.jpg" alt="GM Bags" class="brand-logo" width="76" height="76">GM Bags</a>
+
+                <ul class="navbar-nav">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="prodotti.html" class="nav-link">Prodotti</a></li>
+                    <li><a href="blog.html" class="nav-link">Blog</a></li>
+                    <li><a href="contatti.html" class="nav-link">Contatti</a></li>
+                </ul>
+                <button class="navbar-toggle" id="navbarToggle" aria-label="Apri/chiudi menu">&#9776;</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="hero-banner hero-compact">
+        <div class="inner-content">
+            <h1>Il Tuo Carrello</h1>
+            <p>Rivedi i prodotti scelti e completa l'ordine</p>
+        </div>
+    </section>
+
+    <!-- CARRELLO -->
+    <section class="products-section">
+        <div class="container" style="max-width: 800px;">
+            <div id="cartEmptyMessage" style="display:none; text-align:center; padding: 2rem 0;">
+                <p style="margin-bottom: 1.5rem; color: #666;">Il tuo carrello è vuoto.</p>
+                <a href="prodotti.html" class="btn-primary">Sfoglia i Prodotti</a>
+            </div>
+
+            <div id="cartContent" style="display:none;">
+                <div id="cartItemsList"></div>
+
+                <div style="margin-top: 1.5rem;">
+                    <div class="cart-summary-row">
+                        <span>Subtotale</span>
+                        <span id="cartSubtotal"></span>
+                    </div>
+                    <div class="cart-summary-row">
+                        <span>Spese di spedizione</span>
+                        <span>ti verranno comunicate al momento della conferma</span>
+                    </div>
+                    <div class="cart-summary-total">
+                        <span>Totale</span>
+                        <span id="cartGrandTotal"></span>
+                    </div>
+                </div>
+
+                <!-- CHECKOUT: mostrato solo se loggato -->
+                <div id="checkoutSection" style="display:none; margin-top: 2.5rem;">
+                    <h2 style="margin-bottom: 1rem;">Consegna e Pagamento</h2>
+                    <form class="contact-form fade-in" id="checkoutForm">
+                        <div class="form-group">
+                            <label for="checkoutIndirizzo">Indirizzo (via e numero civico) *</label>
+                            <input type="text" id="checkoutIndirizzo" required>
+                        </div>
+                        <div class="form-group" style="display:flex; gap:1rem;">
+                            <div style="flex:2;">
+                                <label for="checkoutCitta">Città *</label>
+                                <input type="text" id="checkoutCitta" required>
+                            </div>
+                            <div style="flex:1;">
+                                <label for="checkoutCap">CAP *</label>
+                                <input type="text" id="checkoutCap" required>
+                            </div>
+                            <div style="flex:1;">
+                                <label for="checkoutProvincia">Prov. *</label>
+                                <input type="text" id="checkoutProvincia" maxlength="2" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkoutMessage">Messaggio (colore, note...)</label>
+                            <textarea id="checkoutMessage"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:0.6rem;">Metodo di Pagamento *</label>
+                            <label class="payment-option">
+                                <input type="radio" name="metodoPagamento" value="contrassegno" checked>
+                                Contrassegno (paghi al corriere alla consegna)
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="metodoPagamento" value="bonifico">
+                                Bonifico bancario (ti inviamo l'IBAN dopo la conferma)
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="metodoPagamento" value="stripe">
+                                Carta di credito/debito online (Stripe)
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="metodoPagamento" value="paypal">
+                                PayPal
+                            </label>
+                        </div>
+
+                        <button type="submit" class="form-submit" id="checkoutSubmitBtn">Conferma Ordine</button>
+                        <p class="form-status" id="checkoutStatus"></p>
+                    </form>
+                </div>
+
+                <div id="loginPrompt" style="display:none; margin-top: 2.5rem; text-align:center; background:#fff8e1; border-left:4px solid #b9a184; padding: 1.5rem;">
+                    <p style="margin-bottom: 1rem;">Per completare l'ordine devi prima accedere o creare un account gratuito.</p>
+                    <a href="login.html" class="btn-primary" style="margin-right: 1rem;">Accedi</a>
+                    <a href="registrazione.html" class="form-footnote">Registrati</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 GMBag | Tutti i diritti riservati | <a href="privacy.html">Privacy Policy</a> | <a href="termini.html">Termini di Servizio</a></p>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        (async () => {
+            const cart = getCart();
+            const emptyEl = document.getElementById('cartEmptyMessage');
+            const contentEl = document.getElementById('cartContent');
+
+            if (cart.length === 0) {
+                emptyEl.style.display = 'block';
+                return;
+            }
+            contentEl.style.display = 'block';
+
+            function renderCart() {
+                const items = getCart();
+                if (items.length === 0) {
+                    emptyEl.style.display = 'block';
+                    contentEl.style.display = 'none';
+                    return;
+                }
+                const list = document.getElementById('cartItemsList');
+                list.innerHTML = '';
+                items.forEach((item) => {
+                    const row = document.createElement('div');
+                    row.className = 'cart-item-row';
+                    const prezzoTesto = item.prezzo != null ? formatEuro(Number(item.prezzo)) : 'da confermare';
+                    row.innerHTML = `
+                        <img src="${escapeHtml(item.immagine || 'assets/img/logo.jpg')}" alt="${escapeHtml(item.nome)}">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${escapeHtml(item.nome)}</div>
+                            <div>${prezzoTesto} cad.</div>
+                            <button type="button" class="cart-item-remove" data-remove-id="${escapeHtml(item.id)}">Rimuovi</button>
+                        </div>
+                        <input type="number" min="1" value="${item.quantita}" class="cart-item-qty" data-qty-id="${escapeHtml(item.id)}">
+                    `;
+                    list.appendChild(row);
+                });
+
+                document.getElementById('cartSubtotal').textContent = formatEuro(cartTotal());
+                document.getElementById('cartGrandTotal').textContent = formatEuro(cartTotal()) + ' + spedizione';
+
+                list.querySelectorAll('[data-remove-id]').forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        removeFromCart(btn.dataset.removeId);
+                        renderCart();
+                    });
+                });
+                list.querySelectorAll('[data-qty-id]').forEach((input) => {
+                    input.addEventListener('change', () => {
+                        updateCartQty(input.dataset.qtyId, input.value);
+                        renderCart();
+                    });
+                });
+            }
+
+            renderCart();
+
+            const { session, profile } = await getSessionAndProfile();
+            const checkoutSection = document.getElementById('checkoutSection');
+            const loginPrompt = document.getElementById('loginPrompt');
+
+            if (!session) {
+                loginPrompt.style.display = 'block';
+                return;
+            }
+
+            checkoutSection.style.display = 'block';
+            if (profile) {
+                if (profile.indirizzo) document.getElementById('checkoutIndirizzo').value = profile.indirizzo;
+                if (profile.citta) document.getElementById('checkoutCitta').value = profile.citta;
+                if (profile.cap) document.getElementById('checkoutCap').value = profile.cap;
+                if (profile.provincia) document.getElementById('checkoutProvincia').value = profile.provincia;
+            }
+
+            // Crea l'ordine (testata + articoli) nel database. Condiviso dal
+            // pagamento manuale e da quello online: cambia solo cosa succede
+            // dopo (per manuale: fine; per online: si passa l'id ordine a
+            // Stripe/PayPal).
+            async function creaOrdine({ items, indirizzo, citta, cap, provincia, messaggio, metodoPagamento, paymentProvider }) {
+                const totale = cartTotal();
+                const nomiRiepilogo = items.map((i) => `${i.nome} x${i.quantita}`).join(', ');
+                const quantitaTotale = items.reduce((s, i) => s + i.quantita, 0);
+
+                const { data: order, error: orderError } = await supabaseClient
+                    .from('orders')
+                    .insert({
+                        user_id: session.user.id,
+                        prodotto: nomiRiepilogo,
+                        quantita: quantitaTotale,
+                        prezzo_unitario: null,
+                        totale: totale,
+                        messaggio: messaggio,
+                        metodo_pagamento: metodoPagamento,
+                        indirizzo_spedizione: indirizzo,
+                        citta_spedizione: citta,
+                        cap_spedizione: cap,
+                        provincia_spedizione: provincia,
+                        payment_provider: paymentProvider
+                    })
+                    .select()
+                    .single();
+
+                if (orderError) {
+                    return { error: "Si è verificato un errore nel salvare l'ordine. Riprova o scrivici a gmbags@gmail.com." };
+                }
+
+                const { error: itemsError } = await supabaseClient.from('order_items').insert(
+                    items.map((i) => ({
+                        order_id: order.id,
+                        prodotto_id: i.id,
+                        nome_prodotto: i.nome,
+                        quantita: i.quantita,
+                        prezzo_unitario: i.prezzo
+                    }))
+                );
+
+                if (itemsError) {
+                    await supabaseClient.from('orders').delete().eq('id', order.id);
+                    return {
+                        error: itemsError.message.includes('Quantita')
+                            ? 'Purtroppo uno dei prodotti nel carrello non è più disponibile nella quantità richiesta. Aggiorna il carrello e riprova.'
+                            : "Si è verificato un errore nel salvare l'ordine. Riprova o scrivici a gmbags@gmail.com."
+                    };
+                }
+
+                // Salva l'indirizzo anche sul profilo, cosi' la prossima volta e' gia' compilato
+                await supabaseClient.from('profiles').update({ indirizzo, citta, cap, provincia }).eq('id', session.user.id);
+
+                return { order, totale, nomiRiepilogo };
+            }
+
+            function inviaNotificheOrdine({ nomiRiepilogo, totale, indirizzo, citta, cap, provincia, metodoPagamento, messaggio }) {
+                // Notifiche via email, best-effort: se falliscono l'ordine e' comunque salvato
+                fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({
+                        _subject: `Nuovo ordine: ${nomiRiepilogo}`,
+                        prodotti: nomiRiepilogo,
+                        totale: formatEuro(totale),
+                        cliente: profile ? profile.nome : session.user.email,
+                        email: session.user.email,
+                        indirizzo: `${indirizzo}, ${cap} ${citta} (${provincia})`,
+                        metodo_pagamento: metodoPagamento,
+                        messaggio: messaggio
+                    })
+                }).catch(() => {});
+
+                fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({
+                        _subject: 'Il tuo ordine GMBag',
+                        _autoresponse: `Grazie per il tuo ordine! Abbiamo ricevuto la richiesta per: ${nomiRiepilogo}. Totale: ${formatEuro(totale)} + spedizione. Ti contatteremo presto per confermare consegna e pagamento. - GMBag`,
+                        email: session.user.email
+                    })
+                }).catch(() => {});
+            }
+
+            document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('checkoutSubmitBtn');
+                const statusEl = document.getElementById('checkoutStatus');
+                const items = getCart();
+                if (items.length === 0) return;
+
+                const indirizzo = document.getElementById('checkoutIndirizzo').value.trim();
+                const citta = document.getElementById('checkoutCitta').value.trim();
+                const cap = document.getElementById('checkoutCap').value.trim();
+                const provincia = document.getElementById('checkoutProvincia').value.trim().toUpperCase();
+                const messaggio = document.getElementById('checkoutMessage').value.trim();
+                const metodoPagamento = document.querySelector('input[name="metodoPagamento"]:checked').value;
+                const isOnline = metodoPagamento === 'stripe' || metodoPagamento === 'paypal';
+
+                btn.disabled = true;
+                statusEl.textContent = '';
+                btn.textContent = 'Invio in corso...';
+
+                const result = await creaOrdine({
+                    items, indirizzo, citta, cap, provincia, messaggio,
+                    metodoPagamento,
+                    paymentProvider: isOnline ? metodoPagamento : 'manuale'
+                });
+
+                if (result.error) {
+                    statusEl.style.color = '#c62828';
+                    statusEl.textContent = result.error;
+                    btn.disabled = false;
+                    btn.textContent = 'Conferma Ordine';
+                    return;
+                }
+
+                if (isOnline) {
+                    btn.textContent = 'Attivazione pagamento online...';
+                    const checkoutUrl = await creaSessionePagamento(metodoPagamento, result.order.id);
+                    if (checkoutUrl) {
+                        clearCart();
+                        window.location.href = checkoutUrl;
+                        return;
+                    }
+                    // Il pagamento online non e' (ancora) configurato: l'ordine resta
+                    // salvato "in attesa", si avvisa il cliente e si notifica comunque.
+                    statusEl.style.color = '#c62828';
+                    statusEl.textContent = "Il pagamento online non è ancora attivo su questo sito. Il tuo ordine è comunque stato registrato: ti contatteremo per accordarci sul pagamento, oppure scrivici a gmbags@gmail.com.";
+                }
+
+                inviaNotificheOrdine({
+                    nomiRiepilogo: result.nomiRiepilogo, totale: result.totale,
+                    indirizzo, citta, cap, provincia, metodoPagamento, messaggio
+                });
+
+                clearCart();
+                if (!isOnline) {
+                    statusEl.style.color = '#2e7d32';
+                    statusEl.textContent = 'Grazie! Il tuo ordine è stato registrato, riceverai una email di conferma. Ti aggiorneremo presto.';
+                }
+                document.getElementById('cartContent').innerHTML = `<p style="text-align:center; padding: 2rem 0;">Ordine registrato! Puoi seguirne lo stato in <a href="account.html">Il Mio Account</a>.</p>`;
+            });
+
+            // Chiede alla Supabase Edge Function di creare una sessione di
+            // pagamento (Stripe Checkout o ordine PayPal) per l'ordine gia'
+            // salvato. Finche' la funzione non e' distribuita con le chiavi
+            // Stripe/PayPal reali, la chiamata fallisce in modo controllato:
+            // l'ordine resta comunque registrato come "in attesa".
+            async function creaSessionePagamento(provider, orderId) {
+                try {
+                    const resp = await fetch(`${SUPABASE_URL}/functions/v1/create-checkout`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session.access_token}`,
+                            'apikey': SUPABASE_ANON_KEY
+                        },
+                        body: JSON.stringify({ provider, order_id: orderId })
+                    });
+                    if (!resp.ok) return null;
+                    const result = await resp.json();
+                    return result.url || null;
+                } catch (e) {
+                    return null;
+                }
+            }
+        })();
+    </script>
+</body>
+</html>

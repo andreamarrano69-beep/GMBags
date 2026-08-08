@@ -62,6 +62,10 @@
                     <h3>📞 Telefono</h3>
                     <p id="profileTelefono">-</p>
                 </div>
+                <div class="contact-item fade-in">
+                    <h3>📦 Indirizzo di Spedizione</h3>
+                    <p id="profileIndirizzo">Non ancora salvato (viene chiesto al primo ordine)</p>
+                </div>
             </div>
         </div>
     </section>
@@ -116,6 +120,10 @@
             document.getElementById('profileNome').textContent = profile ? profile.nome : '-';
             document.getElementById('profileEmail').textContent = session.user.email;
             document.getElementById('profileTelefono').textContent = (profile && profile.telefono) || '-';
+            if (profile && profile.indirizzo) {
+                document.getElementById('profileIndirizzo').textContent =
+                    `${profile.indirizzo}, ${profile.cap || ''} ${profile.citta || ''} (${profile.provincia || ''})`;
+            }
 
             const { data: orders, error } = await supabaseClient
                 .from('orders')

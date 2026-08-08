@@ -310,6 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     new NewsletterForm();
     initSocialLinks();
     initNavbarToggle();
+    initCartUI();
 
     console.log('✓ GMBag - Sito caricato correttamente');
 });
@@ -343,86 +344,125 @@ function scrollToProducts() {
     }
 }
 
-/* ============================================
-   PREZZI PRODOTTO
-   I prezzi ora arrivano dal database (tabella "prodotti", gestibile
-   dall'admin) e vengono passati direttamente a openOrderModal().
-   ============================================ */
-
 function formatEuro(amount) {
     return amount.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 }
 
 /* ============================================
-   MODULO ORDINE PRODOTTO (invio diretto via email)
+   CARRELLO (localStorage, condiviso da tutte le pagine)
+   Il carrello e' libero per chiunque, anche senza account: il login
+   viene richiesto solo al momento del checkout, non per aggiungere
+   prodotti al carrello.
    ============================================ */
-function buildOrderModal() {
-    if (document.getElementById('orderModalOverlay')) return;
+const CART_KEY = 'gmbags_cart';
 
-    const overlay = document.createElement('div');
-    overlay.className = 'order-modal-overlay';
-    overlay.id = 'orderModalOverlay';
-    overlay.innerHTML = `
-        <div class="order-modal">
-            <button type="button" class="order-modal-close" id="orderModalClose" aria-label="Chiudi">&times;</button>
-            <h3>Richiedi il Prodotto</h3>
-            <p class="order-product-name" id="orderProductName"></p>
-            <form id="orderForm">
-                <div class="form-group">
-                    <label for="orderName">Nome Completo *</label>
-                    <input type="text" id="orderName" required>
-                </div>
-                <div class="form-group">
-                    <label for="orderEmail">Email *</label>
-                    <input type="email" id="orderEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="orderPhone">Telefono</label>
-                    <input type="tel" id="orderPhone">
-                </div>
-                <div class="form-group">
-                    <label for="orderQuantity">Quantità</label>
-                    <input type="number" id="orderQuantity" min="1" value="1">
-                </div>
-                <p class="order-total" id="orderTotal"></p>
-                <div class="form-group">
-                    <label for="orderMessage">Messaggio</label>
-                    <textarea id="orderMessage" placeholder="Colore, domande..."></textarea>
-                </div>
-                <button type="submit" class="order-modal-submit" id="orderSubmitBtn">Invia Richiesta</button>
-                <p class="order-modal-status" id="orderModalStatus"></p>
-            </form>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeOrderModal();
-    });
-    document.getElementById('orderModalClose').addEventListener('click', closeOrderModal);
-    document.getElementById('orderForm').addEventListener('submit', handleOrderSubmit);
-    document.getElementById('orderQuantity').addEventListener('input', updateOrderTotal);
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeOrderModal();
-    });
-}
-
-function updateOrderTotal() {
-    const totalEl = document.getElementById('orderTotal');
-    const priceRaw = document.getElementById('orderForm').dataset.price;
-    const unitPrice = priceRaw === '' ? null : Number(priceRaw);
-    const qtyInput = document.getElementById('orderQuantity');
-    const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
-    qtyInput.value = qty;
-
-    if (unitPrice == null) {
-        totalEl.textContent = 'Totale: da confermare (ti diremo il prezzo appena possibile)';
-    } else {
-        totalEl.textContent = `Totale: ${formatEuro(unitPrice * qty)} (${formatEuro(unitPrice)} x ${qty})`;
+function getCart() {
+    try {
+        const raw = localStorage.getItem(CART_KEY);
+        const cart = raw ? JSON.parse(raw) : [];
+        return Array.isArray(cart) ? cart : [];
+    } catch (e) {
+        return [];
     }
 }
 
-function showLoginRequiredModal(productName) {
+function saveCart(cart) {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    updateCartBadge();
+}
+
+function addToCart(product) {
+    const cart = getCart();
+    const existing = cart.find((item) => item.id === product.id);
+    if (existing) {
+        existing.quantita += 1;
+    } else {
+        cart.push({
+            id: product.id,
+            nome: product.nome,
+            prezzo: product.prezzo,
+            immagine: product.immagine,
+            quantita: 1
+        });
+    }
+    saveCart(cart);
+}
+
+function removeFromCart(productId) {
+    saveCart(getCart().filter((item) => item.id !== productId));
+}
+
+function updateCartQty(productId, quantita) {
+    const cart = getCart();
+    const item = cart.find((i) => i.id === productId);
+    if (!item) return;
+    item.quantita = Math.max(1, parseInt(quantita, 10) || 1);
+    saveCart(cart);
+}
+
+function clearCart() {
+    saveCart([]);
+}
+
+function cartCount() {
+    return getCart().reduce((sum, item) => sum + item.quantita, 0);
+}
+
+function cartTotal() {
+    return getCart().reduce((sum, item) => {
+        return sum + (item.prezzo != null ? Number(item.prezzo) * item.quantita : 0);
+    }, 0);
+}
+
+function updateCartBadge() {
+    const badge = document.getElementById('cartCount');
+    if (!badge) return;
+    const count = cartCount();
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'inline-flex' : 'none';
+}
+
+function initCartUI() {
+    const nav = document.querySelector('.navbar-nav');
+    if (!nav || document.getElementById('cartNavLink')) return;
+    const li = document.createElement('li');
+    li.innerHTML = `
+        <a href="carrello.html" id="cartNavLink" class="nav-link" aria-label="Carrello" style="display: inline-flex; align-items: center; gap: 0.3rem;">
+            🛒 <span id="cartCount" class="cart-badge">0</span>
+        </a>
+    `;
+    nav.appendChild(li);
+    updateCartBadge();
+}
+
+function showCartToast(message) {
+    let toast = document.getElementById('cartToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'cartToast';
+        toast.className = 'cart-toast';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('visible');
+    clearTimeout(toast._hideTimeout);
+    toast._hideTimeout = setTimeout(() => toast.classList.remove('visible'), 2200);
+}
+
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-add-to-cart]');
+    if (!btn) return;
+    const prezzoRaw = btn.dataset.prezzo;
+    addToCart({
+        id: btn.dataset.id,
+        nome: btn.dataset.nome,
+        prezzo: prezzoRaw === '' ? null : Number(prezzoRaw),
+        immagine: btn.dataset.immagine
+    });
+    showCartToast(`Aggiunto al carrello: ${btn.dataset.nome}`);
+});
+
+function showLoginRequiredModal(message) {
     let modal = document.getElementById('loginRequiredOverlay');
     if (!modal) {
         modal = document.createElement('div');
@@ -432,10 +472,7 @@ function showLoginRequiredModal(productName) {
             <div class="order-modal" style="text-align: center;">
                 <button type="button" class="order-modal-close" id="loginRequiredClose" aria-label="Chiudi">&times;</button>
                 <h3>Accesso Richiesto</h3>
-                <p style="margin-bottom: 1.5rem; color: #666;">
-                    Per ordinare <strong id="loginRequiredProduct"></strong> devi prima accedere
-                    o creare un account gratuito. La consultazione del sito resta libera per tutti.
-                </p>
+                <p id="loginRequiredMessage" style="margin-bottom: 1.5rem; color: #666;"></p>
                 <a href="login.html" class="btn-primary" style="display: block; margin-bottom: 1rem;">Accedi</a>
                 <a href="registrazione.html" class="form-footnote" style="display: block;">Non hai un account? Registrati</a>
             </div>
@@ -448,108 +485,9 @@ function showLoginRequiredModal(productName) {
             modal.classList.remove('active');
         });
     }
-    document.getElementById('loginRequiredProduct').textContent = productName;
+    document.getElementById('loginRequiredMessage').textContent =
+        message || 'Per completare il checkout devi prima accedere o creare un account gratuito. Sfogliare il sito e aggiungere al carrello resta libero per tutti.';
     modal.classList.add('active');
-}
-
-async function openOrderModal(productName, price) {
-    if (!isSupabaseConfigured) {
-        alert('Il sistema di account e ordini non è ancora attivo su questo sito. Contattaci direttamente per informazioni su questo prodotto.');
-        return;
-    }
-
-    const { session, profile } = await getSessionAndProfile();
-    if (!session) {
-        showLoginRequiredModal(productName);
-        return;
-    }
-
-    buildOrderModal();
-    document.getElementById('orderProductName').textContent = `Prodotto: ${productName}`;
-    document.getElementById('orderForm').dataset.product = productName;
-    document.getElementById('orderForm').dataset.price = (price == null ? '' : price);
-    document.getElementById('orderModalStatus').textContent = '';
-    document.getElementById('orderQuantity').value = 1;
-    document.getElementById('orderName').value = profile ? profile.nome : '';
-    document.getElementById('orderEmail').value = session.user.email;
-    document.getElementById('orderPhone').value = (profile && profile.telefono) || '';
-    updateOrderTotal();
-    document.getElementById('orderModalOverlay').classList.add('active');
-}
-
-function closeOrderModal() {
-    const overlay = document.getElementById('orderModalOverlay');
-    if (overlay) overlay.classList.remove('active');
-}
-
-async function handleOrderSubmit(e) {
-    e.preventDefault();
-    const form = e.target;
-    const btn = document.getElementById('orderSubmitBtn');
-    const statusEl = document.getElementById('orderModalStatus');
-    const productName = form.dataset.product;
-    const name = document.getElementById('orderName').value;
-    const email = document.getElementById('orderEmail').value;
-    const phone = document.getElementById('orderPhone').value;
-    const message = document.getElementById('orderMessage').value;
-    const qty = Math.max(1, parseInt(document.getElementById('orderQuantity').value, 10) || 1);
-    const priceRaw = form.dataset.price;
-    const unitPrice = priceRaw === '' ? null : Number(priceRaw);
-    const totaleNumerico = unitPrice == null ? null : unitPrice * qty;
-    const totaleTesto = unitPrice == null ? 'da confermare' : formatEuro(totaleNumerico);
-
-    btn.disabled = true;
-    btn.textContent = 'Invio in corso...';
-    statusEl.textContent = '';
-
-    const { session } = await getSessionAndProfile();
-    if (!session) {
-        statusEl.style.color = '#c62828';
-        statusEl.textContent = "Sessione scaduta, effettua di nuovo l'accesso.";
-        btn.disabled = false;
-        btn.textContent = 'Invia Richiesta';
-        return;
-    }
-
-    const { error } = await supabaseClient.from('orders').insert({
-        user_id: session.user.id,
-        prodotto: productName,
-        quantita: qty,
-        prezzo_unitario: unitPrice,
-        totale: totaleNumerico,
-        messaggio: message
-    });
-
-    if (error) {
-        statusEl.style.color = '#c62828';
-        statusEl.textContent = "Si è verificato un errore nel salvare l'ordine. Riprova o scrivici a gmbags@gmail.com.";
-        btn.disabled = false;
-        btn.textContent = 'Invia Richiesta';
-        return;
-    }
-
-    // Notifica via email, best-effort: se fallisce l'ordine e' comunque salvato
-    fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-            _subject: `Nuovo ordine: ${productName} (x${qty})`,
-            prodotto: productName,
-            quantita: qty,
-            totale: totaleTesto,
-            nome: name,
-            email: email,
-            telefono: phone,
-            messaggio: message
-        })
-    }).catch(() => {});
-
-    statusEl.style.color = '#2e7d32';
-    statusEl.textContent = `Grazie ${name}! Il tuo ordine per "${productName}" è stato registrato. Ti aggiorneremo su ${email}.`;
-    form.reset();
-    btn.disabled = false;
-    btn.textContent = 'Invia Richiesta';
-    setTimeout(closeOrderModal, 3000);
 }
 
 /* ============================================
@@ -562,9 +500,8 @@ function productCardHtml(product) {
         ? formatEuro(Number(product.prezzo))
         : 'Scrivici per il prezzo';
     const img = escapeHtml(product.immagine || 'assets/img/logo.jpg');
-    const priceArg = product.prezzo != null ? Number(product.prezzo) : 'null';
-    const jsSafeName = product.nome.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    const onclickAttr = escapeHtml(`openOrderModal('${jsSafeName}', ${priceArg})`);
+    const esaurito = product.quantita_disponibile != null && product.quantita_disponibile <= 0;
+    const prezzoAttr = product.prezzo != null ? String(Number(product.prezzo)) : '';
     return `
         <div class="product-card">
             <div class="product-image">
@@ -574,9 +511,10 @@ function productCardHtml(product) {
                 <div class="product-name">${escapeHtml(product.nome)}</div>
                 <div class="product-price">${priceHtml}</div>
                 <p class="product-description">${escapeHtml(product.descrizione || '')}</p>
-                <button class="btn-cart" onclick="${onclickAttr}">
-                    Ordina via Email
-                </button>
+                ${esaurito
+                    ? '<button class="btn-cart" disabled style="opacity:0.6; cursor:not-allowed;">Esaurito</button>'
+                    : `<button class="btn-cart" data-add-to-cart data-id="${escapeHtml(product.id)}" data-nome="${escapeHtml(product.nome)}" data-prezzo="${prezzoAttr}" data-immagine="${img}">Aggiungi al Carrello</button>`
+                }
             </div>
         </div>
     `;

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pagamento completato - GMBag">
+    <meta name="robots" content="noindex">
+    <title>Pagamento - GMBag</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/jpeg" href="assets/img/logo.jpg">
+</head>
+<body>
+    <header id="site-header">
+        <nav class="navbar">
+            <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+                <a class="navbar-brand" href="index.html"><img src="assets/img/logo.jpg" alt="GM Bags" class="brand-logo" width="76" height="76">GM Bags</a>
+                <ul class="navbar-nav">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="prodotti.html" class="nav-link">Prodotti</a></li>
+                </ul>
+                <button class="navbar-toggle" id="navbarToggle" aria-label="Apri/chiudi menu">&#9776;</button>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero-banner hero-compact">
+        <div class="inner-content">
+            <h1>Pagamento</h1>
+        </div>
+    </section>
+
+    <section class="products-section">
+        <div class="container" style="max-width: 600px; text-align: center;">
+            <p id="paymentStatus" style="font-size: 1.1rem;">Verifica del pagamento in corso...</p>
+            <a href="account.html" class="btn-primary" style="margin-top: 1.5rem; display: inline-block;">Vai a Il Mio Account</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 GMBag | Tutti i diritti riservati | <a href="privacy.html">Privacy Policy</a> | <a href="termini.html">Termini di Servizio</a></p>
+    </footer>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        (async () => {
+            const statusEl = document.getElementById('paymentStatus');
+            const params = new URLSearchParams(window.location.search);
+            const provider = params.get('provider');
+            const orderId = params.get('order_id');
+            const paypalOrderId = params.get('token'); // PayPal rimanda l'id ordine come "token"
+
+            if (provider === 'stripe') {
+                statusEl.textContent = 'Grazie! Il pagamento è stato ricevuto da Stripe. Stiamo confermando l\'ordine, riceverai una email a breve (di solito richiede pochi secondi).';
+                return;
+            }
+
+            if (provider === 'paypal' && orderId && paypalOrderId) {
+                try {
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    const resp = await fetch(`${SUPABASE_URL}/functions/v1/capture-paypal-order`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session.access_token}`,
+                            'apikey': SUPABASE_ANON_KEY
+                        },
+                        body: JSON.stringify({ paypal_order_id: paypalOrderId, order_id: orderId })
+                    });
+                    if (resp.ok) {
+                        statusEl.textContent = 'Pagamento PayPal completato! Il tuo ordine è confermato.';
+                    } else {
+                        statusEl.textContent = 'Non siamo riusciti a confermare il pagamento automaticamente. Scrivici a gmbags@gmail.com con il numero del tuo ordine.';
+                    }
+                } catch (e) {
+                    statusEl.textContent = 'Non siamo riusciti a confermare il pagamento automaticamente. Scrivici a gmbags@gmail.com.';
+                }
+                return;
+            }
+
+            statusEl.textContent = 'Puoi controllare lo stato del tuo ordine in "Il Mio Account".';
+        })();
+    </script>
+</body>
+</html>

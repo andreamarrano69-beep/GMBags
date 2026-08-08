@@ -443,3 +443,142 @@ create policy "Utenti creano i propri ordini"
     and data_incassato is null
     and importo_incassato is null
   );
+
+-- ============================================================
+-- AGGIORNAMENTO: CARRELLO MULTI-PRODOTTO, INDIRIZZO, MAGAZZINO,
+-- PAGAMENTI ONLINE
+-- Sicura da rieseguire piu' di una volta.
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- PROFILES: indirizzo di spedizione salvato (facoltativo, di comodo:
+-- viene precompilato al checkout, l'utente puo' sempre modificarlo).
+-- ------------------------------------------------------------
+alter table public.profiles add column if not exists indirizzo text;
+alter table public.profiles add column if not exists citta text;
+alter table public.profiles add column if not exists cap text;
+alter table public.profiles add column if not exists provincia text;
+
+-- ------------------------------------------------------------
+-- PRODOTTI: quantita' disponibile in magazzino.
+-- Se resta NULL, il prodotto NON traccia il magazzino (comportamento
+-- attuale, illimitato): l'admin decide per quali prodotti attivare
+-- il conteggio impostando un numero.
+-- ------------------------------------------------------------
+alter table public.prodotti add column if not exists quantita_disponibile integer;
+
+-- ------------------------------------------------------------
+-- ORDERS: diventa la "testata" di un ordine che puo' contenere piu'
+-- prodotti (vedi tabella order_items sotto). Aggiunge l'indirizzo di
+-- spedizione (fotografato al momento dell'ordine, non collegato al
+-- profilo: se il cliente cambia indirizzo dopo, l'ordine vecchio
+-- resta corretto) e il tracciamento del pagamento online.
+-- ------------------------------------------------------------
+alter table public.orders add column if not exists indirizzo_spedizione text;
+alter table public.orders add column if not exists citta_spedizione text;
+alter table public.orders add column if not exists cap_spedizione text;
+alter table public.orders add column if not exists provincia_spedizione text;
+alter table public.orders add column if not exists payment_provider text; -- 'stripe' | 'paypal' | 'manuale'
+alter table public.orders add column if not exists payment_reference text; -- id transazione esterna
+
+-- ------------------------------------------------------------
+-- TABELLA: order_items
+-- Un prodotto per riga, collegato a un ordine: e' quello che rende
+-- possibile il carrello con piu' articoli. nome_prodotto e'
+-- "fotografato" al momento dell'ordine (resta corretto anche se il
+-- prodotto viene poi rinominato o rimosso dal catalogo).
+-- ------------------------------------------------------------
+create table if not exists public.order_items (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references public.orders (id) on delete cascade,
+  prodotto_id uuid references public.prodotti (id) on delete set null,
+  nome_prodotto text not null,
+  quantita integer not null default 1,
+  prezzo_unitario numeric(10, 2),
+  created_at timestamptz not null default now()
+);
+
+alter table public.order_items enable row level security;
+
+drop policy if exists "Utenti leggono gli articoli dei propri ordini" on public.order_items;
+create policy "Utenti leggono gli articoli dei propri ordini"
+  on public.order_items for select
+  using (
+    exists (select 1 from public.orders o where o.id = order_id and o.user_id = auth.uid())
+  );
+
+drop policy if exists "Admin legge tutti gli articoli ordine" on public.order_items;
+create policy "Admin legge tutti gli articoli ordine"
+  on public.order_items for select
+  using (public.is_admin());
+
+drop policy if exists "Utenti creano articoli nei propri ordini" on public.order_items;
+create policy "Utenti creano articoli nei propri ordini"
+  on public.order_items for insert
+  with check (
+    exists (select 1 from public.orders o where o.id = order_id and o.user_id = auth.uid())
+  );
+
+-- ------------------------------------------------------------
+-- MAGAZZINO AUTOMATICO
+-- Quando viene aggiunto un articolo a un ordine, se il prodotto
+-- traccia il magazzino (quantita_disponibile non nullo) la quantita'
+-- viene scalata in automatico; se non ce n'e' abbastanza, l'intero
+-- ordine viene rifiutato (evita di vendere due volte l'ultimo pezzo,
+-- anche con piu' persone che ordinano nello stesso momento).
+-- Se l'ordine viene poi segnato "annullato", la quantita' torna
+-- disponibile automaticamente.
+-- ------------------------------------------------------------
+create or replace function public.scala_magazzino()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  righe_aggiornate integer;
+begin
+  if new.prodotto_id is not null then
+    update public.prodotti
+      set quantita_disponibile = quantita_disponibile - new.quantita
+      where id = new.prodotto_id
+        and quantita_disponibile is not null
+        and quantita_disponibile >= new.quantita;
+    get diagnostics righe_aggiornate = row_count;
+    if righe_aggiornate = 0
+       and exists (select 1 from public.prodotti where id = new.prodotto_id and quantita_disponibile is not null) then
+      raise exception 'Quantita non disponibile per il prodotto richiesto';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists scala_magazzino on public.order_items;
+create trigger scala_magazzino
+  before insert on public.order_items
+  for each row execute procedure public.scala_magazzino();
+
+create or replace function public.ripristina_magazzino_su_annullamento()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.stato = 'annullato' and old.stato is distinct from 'annullato' then
+    update public.prodotti p
+      set quantita_disponibile = p.quantita_disponibile + oi.quantita
+      from public.order_items oi
+      where oi.order_id = new.id
+        and oi.prodotto_id = p.id
+        and p.quantita_disponibile is not null;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists ripristina_magazzino_su_annullamento on public.orders;
+create trigger ripristina_magazzino_su_annullamento
+  after update on public.orders
+  for each row execute procedure public.ripristina_magazzino_su_annullamento();
