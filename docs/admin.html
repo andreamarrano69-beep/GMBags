@@ -334,13 +334,13 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${data}</td>
-                    <td>${profile ? profile.nome : 'N/D'}</td>
-                    <td>${(profile && profile.telefono) || ''}</td>
-                    <td>${order.prodotto}</td>
+                    <td>${escapeHtml(profile ? profile.nome : 'N/D')}</td>
+                    <td>${escapeHtml((profile && profile.telefono) || '')}</td>
+                    <td>${escapeHtml(order.prodotto)}</td>
                     <td>${order.quantita}</td>
                     <td>${totale}</td>
                     <td></td>
-                    <td>${order.metodo_pagamento}</td>
+                    <td>${escapeHtml(order.metodo_pagamento)}</td>
                     <td></td>
                     <td class="order-tracking">${trackingHtml(order)}</td>
                 `;
@@ -402,10 +402,10 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${data}</td>
-                    <td>${msg.nome}</td>
-                    <td><a href="mailto:${msg.email}">${msg.email}</a>${msg.telefono ? '<br>' + msg.telefono : ''}</td>
-                    <td>${msg.oggetto || ''}</td>
-                    <td style="max-width: 280px;">${msg.messaggio}</td>
+                    <td>${escapeHtml(msg.nome)}</td>
+                    <td><a href="mailto:${escapeHtml(msg.email)}">${escapeHtml(msg.email)}</a>${msg.telefono ? '<br>' + escapeHtml(msg.telefono) : ''}</td>
+                    <td>${escapeHtml(msg.oggetto || '')}</td>
+                    <td style="max-width: 280px;">${escapeHtml(msg.messaggio)}</td>
                     <td></td>
                 `;
 
@@ -448,7 +448,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${data}</td>
-                    <td>${post.titolo}</td>
+                    <td>${escapeHtml(post.titolo)}</td>
                     <td>${post.pubblicato ? 'Pubblicato' : 'Bozza'}</td>
                     <td></td>
                 `;
@@ -522,7 +522,7 @@
                     : 'da confermare';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${product.nome}</td>
+                    <td>${escapeHtml(product.nome)}</td>
                     <td>${prezzo}</td>
                     <td>${product.in_evidenza ? 'Sì' : 'No'}</td>
                     <td>${product.attivo ? 'Sì' : 'No'}</td>

@@ -1,4 +1,21 @@
 /* ============================================
+   UTILITY: ESCAPE HTML
+   Da usare SEMPRE quando si inserisce nel DOM (via innerHTML) un
+   testo scritto da un utente (nome, messaggio, prodotto...): evita
+   che qualcuno possa inserire codice invece di testo (XSS). Sicura
+   sia dentro al testo che dentro ad attributi HTML tra virgolette.
+   ============================================ */
+function escapeHtml(text) {
+    if (text == null) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/* ============================================
    UTILITY: TAG E TRACCIAMENTO STATO ORDINE
    Condivise tra account.html e admin.html
    ============================================ */
@@ -544,19 +561,20 @@ function productCardHtml(product) {
     const priceHtml = product.prezzo != null
         ? formatEuro(Number(product.prezzo))
         : 'Scrivici per il prezzo';
-    const img = product.immagine || 'assets/img/logo.jpg';
-    const nomeAttr = product.nome.replace(/'/g, "\\'");
+    const img = escapeHtml(product.immagine || 'assets/img/logo.jpg');
     const priceArg = product.prezzo != null ? Number(product.prezzo) : 'null';
+    const jsSafeName = product.nome.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const onclickAttr = escapeHtml(`openOrderModal('${jsSafeName}', ${priceArg})`);
     return `
         <div class="product-card">
             <div class="product-image">
-                <img src="${img}" alt="${product.nome}">
+                <img src="${img}" alt="${escapeHtml(product.nome)}">
             </div>
             <div class="product-info">
-                <div class="product-name">${product.nome}</div>
+                <div class="product-name">${escapeHtml(product.nome)}</div>
                 <div class="product-price">${priceHtml}</div>
-                <p class="product-description">${product.descrizione || ''}</p>
-                <button class="btn-cart" onclick="openOrderModal('${nomeAttr}', ${priceArg})">
+                <p class="product-description">${escapeHtml(product.descrizione || '')}</p>
+                <button class="btn-cart" onclick="${onclickAttr}">
                     Ordina via Email
                 </button>
             </div>

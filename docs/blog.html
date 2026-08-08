@@ -198,15 +198,15 @@
                 const immagine = post.immagine || 'assets/img/logo.jpg';
 
                 const card = document.createElement('div');
-                card.className = 'blog-card fade-in';
+                card.className = 'blog-card';
                 card.innerHTML = `
                     <div class="blog-image">
-                        <img src="${immagine}" alt="${post.titolo}">
+                        <img src="${escapeHtml(immagine)}" alt="${escapeHtml(post.titolo)}">
                     </div>
                     <div class="blog-content">
                         <div class="blog-date">${data}</div>
-                        <h3 class="blog-title">${post.titolo}</h3>
-                        <p class="blog-excerpt">${post.estratto || ''}</p>
+                        <h3 class="blog-title">${escapeHtml(post.titolo)}</h3>
+                        <p class="blog-excerpt">${escapeHtml(post.estratto || '')}</p>
                         <a href="articolo.html?slug=${encodeURIComponent(post.slug)}" class="blog-read-more">Leggi di più →</a>
                     </div>
                 `;

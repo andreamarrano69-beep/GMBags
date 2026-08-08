@@ -144,7 +144,7 @@
                     : 'da confermare';
                 tr.innerHTML = `
                     <td>${data}</td>
-                    <td>${order.prodotto}</td>
+                    <td>${escapeHtml(order.prodotto)}</td>
                     <td>${order.quantita}</td>
                     <td>${totale}</td>
                     <td><span class="${statusTagClass(order.stato)}">${order.stato}</span></td>

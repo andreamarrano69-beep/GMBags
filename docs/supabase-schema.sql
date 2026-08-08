@@ -386,3 +386,60 @@ create policy "Admin elimina prodotti"
 -- totale quando l'ordine viene segnato come "incassato".
 -- ------------------------------------------------------------
 alter table public.orders add column if not exists spese_spedizione numeric(10, 2) not null default 0;
+
+-- ============================================================
+-- SICUREZZA: chiude due falle scoperte durante un controllo del codice
+-- Sicura da rieseguire piu' di una volta.
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- FALLA 1: un utente registrato poteva promuoversi admin da solo
+-- La policy "Utenti aggiornano il proprio profilo" permette di
+-- modificare il proprio profilo (nome, telefono), ma non impediva di
+-- modificare anche la colonna is_admin nella stessa richiesta: bastava
+-- aprire la Console del browser e scrivere una riga di codice per
+-- diventare admin. Questo trigger blocca la modifica di is_admin a
+-- chiunque non sia gia' admin, lasciando pero' funzionante la
+-- procedura manuale "COME DIVENTARE ADMIN" descritta piu' sopra
+-- (quella eseguita dall'SQL Editor di Supabase).
+-- ------------------------------------------------------------
+create or replace function public.prevent_is_admin_escalation()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is not null and not public.is_admin() then
+    new.is_admin := old.is_admin;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists prevent_is_admin_escalation on public.profiles;
+create trigger prevent_is_admin_escalation
+  before update on public.profiles
+  for each row execute procedure public.prevent_is_admin_escalation();
+
+-- ------------------------------------------------------------
+-- FALLA 2: un utente poteva creare un ordine gia' finto "incassato"
+-- La policy di inserimento ordini controllava solo che l'ordine fosse
+-- intestato a se stessi, non i valori dei campi: chiunque poteva
+-- inserire (sempre dalla Console del browser, bypassando il sito)
+-- un ordine con stato "incassato" e importo a piacere, senza aver
+-- pagato nulla. Ora un nuovo ordine puo' nascere solo con stato
+-- "in attesa" e senza date/importo di tracciamento: solo l'admin puo'
+-- farli avanzare (come gia' avviene dal pannello Admin).
+-- ------------------------------------------------------------
+drop policy if exists "Utenti creano i propri ordini" on public.orders;
+create policy "Utenti creano i propri ordini"
+  on public.orders for insert
+  with check (
+    auth.uid() = user_id
+    and stato = 'in attesa'
+    and data_ordinato is null
+    and data_spedito is null
+    and data_incassato is null
+    and importo_incassato is null
+  );

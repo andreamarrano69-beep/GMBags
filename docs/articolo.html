@@ -126,13 +126,13 @@
 
             const paragrafi = post.contenuto
                 .split(/\n\s*\n/)
-                .map((p) => `<p>${p.trim().replace(/\n/g, '<br>')}</p>`)
+                .map((p) => `<p>${escapeHtml(p.trim()).replace(/\n/g, '<br>')}</p>`)
                 .join('');
 
             container.innerHTML = `
-                ${post.immagine ? `<img class="article-image" src="${post.immagine}" alt="${post.titolo}">` : ''}
+                ${post.immagine ? `<img class="article-image" src="${escapeHtml(post.immagine)}" alt="${escapeHtml(post.titolo)}">` : ''}
                 <div class="article-date">${data}</div>
-                <h2 class="article-title">${post.titolo}</h2>
+                <h2 class="article-title">${escapeHtml(post.titolo)}</h2>
                 <div class="article-body">${paragrafi}</div>
             `;
         })();
