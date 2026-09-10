@@ -641,6 +641,34 @@ footer a:hover {
   z-index: 999;
   overflow: hidden;
   animation: slideInUp 0.4s ease-out;
+  transition: width 0.25s ease;
+}
+
+/* Stato "chiuso": solo un pulsante rotondo, non copre il contenuto sotto */
+.chatbot-widget.collapsed {
+  width: 56px;
+  border-radius: 50%;
+  box-shadow: var(--shadow-medium);
+}
+
+.chatbot-widget.collapsed .chatbot-body {
+  display: none !important;
+}
+
+.chatbot-widget.collapsed .chatbot-header {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.chatbot-widget.collapsed .chatbot-header span {
+  display: none;
+}
+
+.chatbot-widget.collapsed .chatbot-header button {
+  font-size: 1.5rem;
 }
 
 .chatbot-header {
@@ -930,6 +958,11 @@ footer a:hover {
     bottom: 10px;
     right: 10px;
     left: 10px;
+  }
+
+  .chatbot-widget.collapsed {
+    width: 56px;
+    left: auto;
   }
 
   .newsletter-form {

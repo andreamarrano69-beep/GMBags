@@ -117,6 +117,7 @@ function trackingHtml(order) {
    ============================================ */
 class ChatBot {
     constructor() {
+        this.chatbotWidget = document.getElementById('chatbotWidget');
         this.chatbotToggle = document.getElementById('chatbotToggle');
         this.chatbotBody = document.getElementById('chatbotBody');
         this.chatbotHeader = document.getElementById('chatbotHeader');
@@ -131,7 +132,16 @@ class ChatBot {
 
     init() {
         if (this.chatbotToggle) {
-            this.chatbotToggle.addEventListener('click', () => this.toggleChat());
+            // Parte sempre chiuso (solo il pulsante rotondo): si apre al click,
+            // cosi' non copre mai il contenuto della pagina da sola.
+            this.chatbotBody.style.display = 'none';
+            this.chatbotToggle.textContent = '+';
+            this.chatbotWidget.classList.add('collapsed');
+
+            // Un solo listener sull'intestazione: il pulsante +/- ci sta
+            // dentro, quindi un click sul pulsante farebbe scattare anche
+            // questo per "bubbling". Due listener separati avrebbero fatto
+            // scattare il toggle due volte, annullandosi a vicenda.
             this.chatbotHeader.addEventListener('click', () => this.toggleChat());
         }
 
@@ -156,9 +166,11 @@ class ChatBot {
         if (this.chatbotBody.style.display === 'none' || !this.chatbotBody.style.display) {
             this.chatbotBody.style.display = 'flex';
             this.chatbotToggle.textContent = '−';
+            this.chatbotWidget.classList.remove('collapsed');
         } else {
             this.chatbotBody.style.display = 'none';
             this.chatbotToggle.textContent = '+';
+            this.chatbotWidget.classList.add('collapsed');
         }
     }
 
