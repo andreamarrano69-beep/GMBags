@@ -267,7 +267,7 @@ class NewsletterForm {
         button.disabled = true;
         button.textContent = 'Invio...';
 
-        fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
+        fetch('https://formsubmit.co/ajax/andrea.marrano69@gmail.com', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
             body: JSON.stringify({

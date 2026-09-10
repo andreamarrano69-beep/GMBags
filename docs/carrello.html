@@ -268,7 +268,7 @@
 
             function inviaNotificheOrdine({ nomiRiepilogo, totale, indirizzo, citta, cap, provincia, metodoPagamento, messaggio }) {
                 // Notifiche via email, best-effort: se falliscono l'ordine e' comunque salvato
-                fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
+                fetch('https://formsubmit.co/ajax/andrea.marrano69@gmail.com', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                     body: JSON.stringify({
@@ -283,7 +283,7 @@
                     })
                 }).catch(() => {});
 
-                fetch('https://formsubmit.co/ajax/gmbags@gmail.com', {
+                fetch('https://formsubmit.co/ajax/andrea.marrano69@gmail.com', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                     body: JSON.stringify({
