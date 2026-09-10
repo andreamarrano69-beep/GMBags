@@ -325,7 +325,7 @@ class NewsletterForm {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
             body: JSON.stringify({
-                _subject: 'Nuova iscrizione Newsletter GMBag',
+                _subject: 'Nuova iscrizione Newsletter GMBags',
                 email: input.value.trim()
             })
         })
@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavbarToggle();
     initCartUI();
 
-    console.log('✓ GMBag - Sito caricato correttamente');
+    console.log('✓ GMBags - Sito caricato correttamente');
 });
 
 /* ============================================

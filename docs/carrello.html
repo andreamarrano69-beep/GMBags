@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Il tuo carrello GMBag: rivedi i prodotti scelti e completa l'ordine.">
-    <title>Carrello - GMBag</title>
+    <meta name="description" content="Il tuo carrello GMBags: rivedi i prodotti scelti e completa l'ordine.">
+    <title>Carrello - GMBags</title>
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Carrello - GMBag" />
-    <meta property="og:description" content="Il tuo carrello GMBag: rivedi i prodotti scelti e completa l'ordine." />
+    <meta property="og:title" content="Carrello - GMBags" />
+    <meta property="og:description" content="Il tuo carrello GMBags: rivedi i prodotti scelti e completa l'ordine." />
     <meta property="og:image" content="https://andreamarrano69-beep.github.io/GMBags/assets/img/logo.jpg" />
     <meta property="og:url" content="https://andreamarrano69-beep.github.io/GMBags/carrello.html" />
     <link rel="stylesheet" href="css/style.css">
@@ -128,7 +128,7 @@
 
     <!-- FOOTER -->
     <footer>
-        <p>&copy; 2026 GMBag | Tutti i diritti riservati | <a href="privacy.html">Privacy Policy</a> | <a href="termini.html">Termini di Servizio</a></p>
+        <p>&copy; 2026 GMBags | Tutti i diritti riservati | <a href="privacy.html">Privacy Policy</a> | <a href="termini.html">Termini di Servizio</a></p>
     </footer>
 
     <!-- JAVASCRIPT -->
@@ -287,8 +287,8 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                     body: JSON.stringify({
-                        _subject: 'Il tuo ordine GMBag',
-                        _autoresponse: `Grazie per il tuo ordine! Abbiamo ricevuto la richiesta per: ${nomiRiepilogo}. Totale: ${formatEuro(totale)} + spedizione. Ti contatteremo presto per confermare consegna e pagamento. - GMBag`,
+                        _subject: 'Il tuo ordine GMBags',
+                        _autoresponse: `Grazie per il tuo ordine! Abbiamo ricevuto la richiesta per: ${nomiRiepilogo}. Totale: ${formatEuro(totale)} + spedizione. Ti contatteremo presto per confermare consegna e pagamento. - GMBags`,
                         email: session.user.email
                     })
                 }).catch(() => {});
