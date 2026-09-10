@@ -48,7 +48,10 @@ async function initAuthNav() {
             await supabaseClient.auth.signOut();
             window.location.href = 'index.html';
         });
-    } else {
+    } else if (typeof NEGOZIO_ATTIVO === 'undefined' || NEGOZIO_ATTIVO) {
+        // In modalita' vetrina (NEGOZIO_ATTIVO = false) il link "Accedi"
+        // resta nascosto dal menu: la pagina di login e' comunque
+        // raggiungibile digitando l'indirizzo direttamente.
         const liLogin = document.createElement('li');
         liLogin.innerHTML = '<a href="login.html" class="nav-link">Accedi</a>';
         navList.appendChild(liLogin);

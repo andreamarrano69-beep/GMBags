@@ -520,6 +520,7 @@ function updateCartBadge() {
 }
 
 function initCartUI() {
+    if (typeof NEGOZIO_ATTIVO !== 'undefined' && !NEGOZIO_ATTIVO) return;
     const nav = document.querySelector('.navbar-nav');
     if (!nav || document.getElementById('cartNavLink')) return;
     const li = document.createElement('li');
@@ -599,6 +600,15 @@ function productCardHtml(product) {
     const img = escapeHtml(product.immagine || 'assets/img/logo.jpg');
     const esaurito = product.quantita_disponibile != null && product.quantita_disponibile <= 0;
     const prezzoAttr = product.prezzo != null ? String(Number(product.prezzo)) : '';
+    const negozioAttivo = typeof NEGOZIO_ATTIVO === 'undefined' || NEGOZIO_ATTIVO;
+    // In modalita' vetrina (NEGOZIO_ATTIVO = false) niente pulsante di
+    // acquisto: il sito mostra solo i prodotti, il chatbot resta il
+    // canale per farsi contattare.
+    const azioneHtml = !negozioAttivo
+        ? ''
+        : (esaurito
+            ? '<button class="btn-cart" disabled style="opacity:0.6; cursor:not-allowed;">Esaurito</button>'
+            : `<button class="btn-cart" data-add-to-cart data-id="${escapeHtml(product.id)}" data-nome="${escapeHtml(product.nome)}" data-prezzo="${prezzoAttr}" data-immagine="${img}">Aggiungi al Carrello</button>`);
     return `
         <div class="product-card">
             <div class="product-image">
@@ -608,10 +618,7 @@ function productCardHtml(product) {
                 <div class="product-name">${escapeHtml(product.nome)}</div>
                 <div class="product-price">${priceHtml}</div>
                 <p class="product-description">${escapeHtml(product.descrizione || '')}</p>
-                ${esaurito
-                    ? '<button class="btn-cart" disabled style="opacity:0.6; cursor:not-allowed;">Esaurito</button>'
-                    : `<button class="btn-cart" data-add-to-cart data-id="${escapeHtml(product.id)}" data-nome="${escapeHtml(product.nome)}" data-prezzo="${prezzoAttr}" data-immagine="${img}">Aggiungi al Carrello</button>`
-                }
+                ${azioneHtml}
             </div>
         </div>
     `;
