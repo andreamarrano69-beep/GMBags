@@ -635,6 +635,12 @@ footer a:hover {
   bottom: 20px;
   right: 20px;
   width: 350px;
+  /* Non deve mai superare l'altezza disponibile dello schermo,
+     altrimenti l'intestazione (con il pulsante per chiudere) puo'
+     finire sopra il bordo superiore, fuori dalla parte visibile. */
+  max-height: min(520px, calc(100vh - 40px));
+  display: flex;
+  flex-direction: column;
   background: white;
   border-radius: 12px;
   box-shadow: var(--shadow-strong);
@@ -647,6 +653,7 @@ footer a:hover {
 /* Stato "chiuso": solo un pulsante rotondo, non copre il contenuto sotto */
 .chatbot-widget.collapsed {
   width: 56px;
+  max-height: 56px;
   border-radius: 50%;
   box-shadow: var(--shadow-medium);
 }
@@ -680,12 +687,16 @@ footer a:hover {
   align-items: center;
   font-weight: 600;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .chatbot-header button {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
   cursor: pointer;
   color: var(--primary-dark);
   transition: var(--transition-smooth);
@@ -698,7 +709,8 @@ footer a:hover {
 .chatbot-body {
   display: flex;
   flex-direction: column;
-  height: 400px;
+  flex: 1;
+  min-height: 0; /* permette alla lista messaggi di scorrere invece di spingere fuori l'intestazione */
 }
 
 .chatbot-messages {
@@ -745,6 +757,7 @@ footer a:hover {
   padding: 1rem;
   border-top: 1px solid var(--border-light);
   background: white;
+  flex-shrink: 0; /* non deve mai essere schiacciato dal flex layout */
 }
 
 .chatbot-input input {
