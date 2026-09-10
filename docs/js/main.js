@@ -135,7 +135,7 @@ class ChatBot {
             // Parte sempre chiuso (solo il pulsante rotondo): si apre al click,
             // cosi' non copre mai il contenuto della pagina da sola.
             this.chatbotBody.style.display = 'none';
-            this.chatbotToggle.textContent = '+';
+            this.chatbotToggle.textContent = '💬';
             this.chatbotWidget.classList.add('collapsed');
 
             // Un solo listener sull'intestazione: il pulsante +/- ci sta
@@ -165,11 +165,11 @@ class ChatBot {
     toggleChat() {
         if (this.chatbotBody.style.display === 'none' || !this.chatbotBody.style.display) {
             this.chatbotBody.style.display = 'flex';
-            this.chatbotToggle.textContent = '−';
+            this.chatbotToggle.textContent = '✕';
             this.chatbotWidget.classList.remove('collapsed');
         } else {
             this.chatbotBody.style.display = 'none';
-            this.chatbotToggle.textContent = '+';
+            this.chatbotToggle.textContent = '💬';
             this.chatbotWidget.classList.add('collapsed');
         }
     }
