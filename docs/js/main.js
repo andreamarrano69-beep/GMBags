@@ -16,6 +16,23 @@ function escapeHtml(text) {
 }
 
 /* ============================================
+   UTILITY: CARICAMENTO IMMAGINI (solo Admin)
+   Carica un file scelto dall'admin nello spazio "immagini" di
+   Supabase Storage e restituisce il link pubblico da salvare nel
+   campo "Immagine" di un prodotto o articolo.
+   ============================================ */
+async function caricaImmagine(file, cartella) {
+    const nomeSicuro = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const percorso = `${cartella}/${Date.now()}-${nomeSicuro}`;
+
+    const { error } = await supabaseClient.storage.from('immagini').upload(percorso, file);
+    if (error) return { error };
+
+    const { data } = supabaseClient.storage.from('immagini').getPublicUrl(percorso);
+    return { url: data.publicUrl };
+}
+
+/* ============================================
    UTILITY: TAG E TRACCIAMENTO STATO ORDINE
    Condivise tra account.html e admin.html
    ============================================ */

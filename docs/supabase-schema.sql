@@ -672,3 +672,36 @@ drop policy if exists "Admin elimina risposte" on public.bot_risposte;
 create policy "Admin elimina risposte"
   on public.bot_risposte for delete
   using (public.is_admin());
+
+-- ============================================================
+-- AGGIORNAMENTO: CARICAMENTO IMMAGINI DAL PANNELLO ADMIN
+-- Crea uno spazio (bucket) dove admin.html puo' caricare le foto di
+-- prodotti e articoli direttamente da telefono/PC, senza passare da
+-- GitHub. Le immagini caricate sono leggibili da chiunque (serve,
+-- altrimenti i visitatori non le vedrebbero sul sito), ma solo
+-- l'admin puo' caricarne/modificarne/eliminarne.
+-- Sicura da rieseguire piu' di una volta.
+-- ============================================================
+insert into storage.buckets (id, name, public)
+values ('immagini', 'immagini', true)
+on conflict (id) do nothing;
+
+drop policy if exists "Chiunque legge le immagini" on storage.objects;
+create policy "Chiunque legge le immagini"
+  on storage.objects for select
+  using (bucket_id = 'immagini');
+
+drop policy if exists "Admin carica immagini" on storage.objects;
+create policy "Admin carica immagini"
+  on storage.objects for insert
+  with check (bucket_id = 'immagini' and public.is_admin());
+
+drop policy if exists "Admin aggiorna immagini" on storage.objects;
+create policy "Admin aggiorna immagini"
+  on storage.objects for update
+  using (bucket_id = 'immagini' and public.is_admin());
+
+drop policy if exists "Admin elimina immagini" on storage.objects;
+create policy "Admin elimina immagini"
+  on storage.objects for delete
+  using (bucket_id = 'immagini' and public.is_admin());
