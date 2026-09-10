@@ -20,12 +20,66 @@ function escapeHtml(text) {
    Carica un file scelto dall'admin nello spazio "immagini" di
    Supabase Storage e restituisce il link pubblico da salvare nel
    campo "Immagine" di un prodotto o articolo.
+   Prima del caricamento, la foto viene ridimensionata e compressa in
+   automatico (le foto dirette dal telefono possono essere enormi:
+   qui vengono ridotte a un lato massimo di 1600px e salvate come
+   JPEG di qualita' alta, senza che l'admin debba pensarci).
    ============================================ */
+function ridimensionaImmagine(file, latoMassimo = 1600, qualita = 0.85) {
+    return new Promise((resolve) => {
+        // Le GIF le lasciamo intatte: ridisegnarle su canvas perderebbe
+        // l'eventuale animazione.
+        if (file.type === 'image/gif') {
+            resolve(file);
+            return;
+        }
+
+        const img = new Image();
+        const urlTemporaneo = URL.createObjectURL(file);
+
+        img.onload = () => {
+            URL.revokeObjectURL(urlTemporaneo);
+
+            const scala = Math.min(1, latoMassimo / Math.max(img.width, img.height));
+            const larghezza = Math.round(img.width * scala);
+            const altezza = Math.round(img.height * scala);
+
+            // Se la foto e' gia' piccola, non serve ricomprimerla.
+            if (scala === 1 && file.size < 700 * 1024) {
+                resolve(file);
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = larghezza;
+            canvas.height = altezza;
+            canvas.getContext('2d').drawImage(img, 0, 0, larghezza, altezza);
+
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    resolve(file);
+                    return;
+                }
+                const nomeJpeg = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+                resolve(new File([blob], nomeJpeg, { type: 'image/jpeg' }));
+            }, 'image/jpeg', qualita);
+        };
+
+        img.onerror = () => {
+            URL.revokeObjectURL(urlTemporaneo);
+            resolve(file); // se qualcosa va storto, carichiamo il file originale
+        };
+
+        img.src = urlTemporaneo;
+    });
+}
+
 async function caricaImmagine(file, cartella) {
-    const nomeSicuro = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const fileOttimizzato = await ridimensionaImmagine(file);
+    const nomeSicuro = fileOttimizzato.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
     const percorso = `${cartella}/${Date.now()}-${nomeSicuro}`;
 
-    const { error } = await supabaseClient.storage.from('immagini').upload(percorso, file);
+    const { error } = await supabaseClient.storage.from('immagini').upload(percorso, fileOttimizzato);
     if (error) return { error };
 
     const { data } = supabaseClient.storage.from('immagini').getPublicUrl(percorso);
