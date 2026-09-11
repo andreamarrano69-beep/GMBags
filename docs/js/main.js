@@ -207,7 +207,7 @@ class ChatBot {
     }
 
     getBotResponse(userMessage) {
-        const rispostaSicurezza = 'Grazie per la tua domanda! Per informazioni scrivici su WhatsApp al +39 392 596 1105 o via email a gmbags@gmail.com';
+        const rispostaSicurezza = 'Grazie per la tua domanda! Per informazioni scrivici su WhatsApp (link nella pagina Contatti) o via email a gmbags@gmail.com';
 
         if (!this.risposte || this.risposte.length === 0) {
             return rispostaSicurezza;
