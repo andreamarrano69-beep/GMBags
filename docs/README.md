@@ -67,7 +67,7 @@ docs/
 2. In "Build and deployment" seleziona **Source: Deploy from a branch**
 3. Branch: **main**, cartella: **/docs** → **Save**
 4. Dopo qualche minuto il sito sara' online su
-   `https://andreamarrano69-beep.github.io/GMBags/`
+   `https://gmbags.it/`
 
 ### Modulo Contatti/Newsletter (FormSubmit)
 Il modulo contatti e la newsletter inviano i messaggi via email a
