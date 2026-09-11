@@ -427,6 +427,10 @@ async function applySiteContent() {
     if (error || !data) return;
     data.forEach((row) => {
         if (!row.valore) return;
+        if (row.chiave === 'hero_sfondo_url') {
+            document.documentElement.style.setProperty('--hero-bg-image', `url("${row.valore}")`);
+            return;
+        }
         document.querySelectorAll(`[data-content-key="${row.chiave}"]`).forEach((el) => {
             el.textContent = row.valore;
         });

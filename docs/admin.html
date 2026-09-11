@@ -338,6 +338,12 @@
                     <textarea id="contentHeroSottotitolo"></textarea>
                 </div>
                 <div class="form-group">
+                    <label for="contentHeroSfondoFile">Immagine di sfondo (banner iniziale, usata su tutte le pagine)</label>
+                    <input type="file" id="contentHeroSfondoFile" accept="image/*">
+                    <p class="form-status" id="contentHeroSfondoStatus" style="margin-top: 0.4rem;"></p>
+                    <input type="text" id="contentHeroSfondo" placeholder="oppure incolla qui un link" style="margin-top: 0.4rem;">
+                </div>
+                <div class="form-group">
                     <label for="contentPercheTitolo">Titolo sezione "Perché Sceglierci"</label>
                     <input type="text" id="contentPercheTitolo">
                 </div>
@@ -906,6 +912,7 @@
         const CAMPI_CONTENUTO = {
             contentHeroTitolo: 'hero_titolo',
             contentHeroSottotitolo: 'hero_sottotitolo',
+            contentHeroSfondo: 'hero_sfondo_url',
             contentPercheTitolo: 'perche_titolo',
             contentPercheSottotitolo: 'perche_sottotitolo',
             contentFeature1Titolo: 'feature1_titolo',
@@ -1032,6 +1039,23 @@
                     return;
                 }
                 document.getElementById('productImmagine').value = url;
+                statusEl.style.color = '#2e7d32';
+                statusEl.textContent = 'Immagine caricata!';
+            });
+
+            document.getElementById('contentHeroSfondoFile').addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const statusEl = document.getElementById('contentHeroSfondoStatus');
+                statusEl.style.color = '#666';
+                statusEl.textContent = 'Caricamento in corso...';
+                const { url, error } = await caricaImmagine(file, 'sfondo');
+                if (error) {
+                    statusEl.style.color = '#c62828';
+                    statusEl.textContent = 'Errore nel caricamento: ' + error.message;
+                    return;
+                }
+                document.getElementById('contentHeroSfondo').value = url;
                 statusEl.style.color = '#2e7d32';
                 statusEl.textContent = 'Immagine caricata!';
             });

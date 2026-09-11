@@ -760,6 +760,7 @@ create policy "Admin elimina contenuti"
 
 insert into public.site_content (chiave, valore) values
   ('hero_titolo', 'Borse Artigianali all''Uncinetto'),
+  ('hero_sfondo_url', 'assets/img/image0.jpeg'),
   ('hero_sottotitolo', 'Ogni borsa GMBags è realizzata interamente a mano, all''uncinetto, con cura per ogni dettaglio'),
   ('perche_titolo', 'Perché Scegliere GMBags'),
   ('perche_sottotitolo', 'Qualità, tradizione e eccellenza in ogni prodotto'),
