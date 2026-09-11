@@ -152,6 +152,8 @@ class ChatBot {
             // questo per "bubbling". Due listener separati avrebbero fatto
             // scattare il toggle due volte, annullandosi a vicenda.
             this.chatbotHeader.addEventListener('click', () => this.toggleChat());
+
+            setTimeout(() => this.mostraSuggerimento(), 2000);
         }
 
         if (this.sendBtn) {
@@ -160,6 +162,34 @@ class ChatBot {
                 if (e.key === 'Enter') this.sendMessage();
             });
         }
+    }
+
+    // Fumetto che fa notare il chatbot a chi arriva sul sito: compare una
+    // volta sola per visita (sessionStorage), sparisce da solo dopo un po'
+    // o subito se l'utente apre la chat o ci clicca sopra.
+    mostraSuggerimento() {
+        if (!this.chatbotWidget.classList.contains('collapsed')) return;
+        try {
+            if (sessionStorage.getItem('gmbags_chat_hint_shown')) return;
+            sessionStorage.setItem('gmbags_chat_hint_shown', '1');
+        } catch (e) {
+            // localStorage/sessionStorage non disponibile (es. navigazione
+            // privata restrittiva): mostriamo comunque il fumetto una volta,
+            // semplicemente non lo ricorderemo per le pagine successive.
+        }
+
+        const hint = document.createElement('div');
+        hint.className = 'chatbot-hint';
+        hint.textContent = 'Hai domande? Scrivici! 👋';
+        hint.addEventListener('click', () => {
+            hint.remove();
+            if (this.chatbotWidget.classList.contains('collapsed')) this.toggleChat();
+        });
+        document.body.appendChild(hint);
+
+        const nascondiHint = () => hint.remove();
+        this.chatbotHeader.addEventListener('click', nascondiHint, { once: true });
+        setTimeout(nascondiHint, 7000);
     }
 
     async caricaRisposte() {
@@ -718,7 +748,7 @@ function showLoginRequiredModal(message) {
 function productCardHtml(product) {
     const priceHtml = product.prezzo != null
         ? formatEuro(Number(product.prezzo))
-        : 'Scrivici per il prezzo';
+        : '<a href="contatti.html" class="price-contact-link">Scrivici per il prezzo</a>';
     const img = escapeHtml(product.immagine || 'assets/img/logo.jpg');
     const esaurito = product.quantita_disponibile != null && product.quantita_disponibile <= 0;
     const prezzoAttr = product.prezzo != null ? String(Number(product.prezzo)) : '';
