@@ -207,7 +207,7 @@ class ChatBot {
     }
 
     getBotResponse(userMessage) {
-        const rispostaSicurezza = 'Grazie per la tua domanda! Per informazioni scrivici su WhatsApp (link nella pagina Contatti) o via email a gmbags@gmail.com';
+        const rispostaSicurezza = 'Grazie per la tua domanda! Per informazioni scrivici su WhatsApp (link nella pagina Contatti) o via email a gmbags2026@gmail.com';
 
         if (!this.risposte || this.risposte.length === 0) {
             return rispostaSicurezza;
@@ -342,7 +342,7 @@ class NewsletterForm {
         button.disabled = true;
         button.textContent = 'Invio...';
 
-        fetch('https://formsubmit.co/ajax/andrea.marrano69@gmail.com', {
+        fetch('https://formsubmit.co/ajax/gmbags2026@gmail.com', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
             body: JSON.stringify({

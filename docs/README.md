@@ -71,9 +71,9 @@ docs/
 
 ### Modulo Contatti/Newsletter (FormSubmit)
 Il modulo contatti e la newsletter inviano i messaggi via email a
-`gmbags@gmail.com` tramite il servizio gratuito FormSubmit, senza bisogno
+`gmbags2026@gmail.com` tramite il servizio gratuito FormSubmit, senza bisogno
 di un server. **Al primo invio**, FormSubmit manda un'email di conferma a
-`gmbags@gmail.com`: bisogna cliccare il link di conferma dentro quell'email,
+`gmbags2026@gmail.com`: bisogna cliccare il link di conferma dentro quell'email,
 altrimenti i messaggi successivi non arriveranno.
 
 ---
@@ -200,7 +200,7 @@ funzione serve un progetto Supabase gratuito (database + autenticazione).
 2. Torna nell'**SQL Editor** di Supabase ed esegui (sostituendo l'email):
    ```sql
    update public.profiles set is_admin = true
-   where id = (select id from auth.users where email = 'gmbags@gmail.com');
+   where id = (select id from auth.users where email = 'gmbags2026@gmail.com');
    ```
 3. Accedi di nuovo: nel menu comparirà il link **Admin** con statistiche,
    elenco ordini e possibilità di aggiornarne lo stato (in attesa,

@@ -238,7 +238,7 @@
                     .single();
 
                 if (orderError) {
-                    return { error: "Si è verificato un errore nel salvare l'ordine. Riprova o scrivici a gmbags@gmail.com." };
+                    return { error: "Si è verificato un errore nel salvare l'ordine. Riprova o scrivici a gmbags2026@gmail.com." };
                 }
 
                 const { error: itemsError } = await supabaseClient.from('order_items').insert(
@@ -256,7 +256,7 @@
                     return {
                         error: itemsError.message.includes('Quantita')
                             ? 'Purtroppo uno dei prodotti nel carrello non è più disponibile nella quantità richiesta. Aggiorna il carrello e riprova.'
-                            : "Si è verificato un errore nel salvare l'ordine. Riprova o scrivici a gmbags@gmail.com."
+                            : "Si è verificato un errore nel salvare l'ordine. Riprova o scrivici a gmbags2026@gmail.com."
                     };
                 }
 
@@ -268,7 +268,7 @@
 
             function inviaNotificheOrdine({ nomiRiepilogo, totale, indirizzo, citta, cap, provincia, metodoPagamento, messaggio }) {
                 // Notifiche via email, best-effort: se falliscono l'ordine e' comunque salvato
-                fetch('https://formsubmit.co/ajax/andrea.marrano69@gmail.com', {
+                fetch('https://formsubmit.co/ajax/gmbags2026@gmail.com', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                     body: JSON.stringify({
@@ -283,7 +283,7 @@
                     })
                 }).catch(() => {});
 
-                fetch('https://formsubmit.co/ajax/andrea.marrano69@gmail.com', {
+                fetch('https://formsubmit.co/ajax/gmbags2026@gmail.com', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                     body: JSON.stringify({
@@ -338,7 +338,7 @@
                     // Il pagamento online non e' (ancora) configurato: l'ordine resta
                     // salvato "in attesa", si avvisa il cliente e si notifica comunque.
                     statusEl.style.color = '#c62828';
-                    statusEl.textContent = "Il pagamento online non è ancora attivo su questo sito. Il tuo ordine è comunque stato registrato: ti contatteremo per accordarci sul pagamento, oppure scrivici a gmbags@gmail.com.";
+                    statusEl.textContent = "Il pagamento online non è ancora attivo su questo sito. Il tuo ordine è comunque stato registrato: ti contatteremo per accordarci sul pagamento, oppure scrivici a gmbags2026@gmail.com.";
                 }
 
                 inviaNotificheOrdine({

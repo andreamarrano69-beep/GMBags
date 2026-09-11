@@ -133,7 +133,7 @@ create policy "Admin aggiorna tutti gli ordini"
 -- normalmente dal sito con la tua email):
 --
 --   update public.profiles set is_admin = true where id =
---     (select id from auth.users where email = 'gmbags@gmail.com');
+--     (select id from auth.users where email = 'gmbags2026@gmail.com');
 --
 -- ------------------------------------------------------------
 
