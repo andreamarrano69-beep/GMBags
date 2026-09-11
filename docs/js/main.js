@@ -207,7 +207,7 @@ class ChatBot {
     }
 
     getBotResponse(userMessage) {
-        const rispostaSicurezza = 'Grazie per la tua domanda! Per informazioni scrivici su WhatsApp (link nella pagina Contatti) o via email a gmbags2026@gmail.com';
+        const rispostaSicurezza = 'Grazie per la tua domanda! Per informazioni scrivici via email a gmbags2026@gmail.com';
 
         if (!this.risposte || this.risposte.length === 0) {
             return rispostaSicurezza;

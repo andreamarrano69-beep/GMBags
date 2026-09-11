@@ -769,7 +769,7 @@ insert into public.site_content (chiave, valore) values
   ('feature2_titolo', '⏰ Da 2 Anni con Passione'),
   ('feature2_testo', 'GMBags nasce dalla passione per l''uncinetto: da due anni creiamo borse e pochette uniche, curate nei minimi dettagli.'),
   ('feature3_titolo', '💬 Assistenza Diretta'),
-  ('feature3_testo', 'Scrivici su WhatsApp o via email: ti seguiamo personalmente in ogni fase, dall''ordine alla consegna.'),
+  ('feature3_testo', 'Scrivici via email: ti seguiamo personalmente in ogni fase, dall''ordine alla consegna.'),
   ('prodotti_hero_titolo', 'I Nostri Prodotti'),
   ('prodotti_hero_sottotitolo', 'Scopri la collezione di borse e pochette all''uncinetto GMBags'),
   ('categorie_titolo', 'Categorie Prodotti'),
