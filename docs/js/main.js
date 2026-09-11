@@ -408,9 +408,65 @@ document.addEventListener('DOMContentLoaded', () => {
     initSocialLinks();
     initNavbarToggle();
     initCartUI();
+    applySiteContent();
+    loadTestimonianze();
 
     console.log('✓ GMBags - Sito caricato correttamente');
 });
+
+/* ============================================
+   CONTENUTI HOMEPAGE (modificabili dall'admin)
+   Gli elementi con data-content-key mostrano il testo scritto nella
+   pagina finche' non arriva un valore dal database; se il valore
+   c'e', lo sostituisce. Cosi' la pagina resta leggibile anche prima
+   che il caricamento sia completato o se Supabase non e' configurato.
+   ============================================ */
+async function applySiteContent() {
+    if (typeof isSupabaseConfigured === 'undefined' || !isSupabaseConfigured) return;
+    const { data, error } = await supabaseClient.from('site_content').select('*');
+    if (error || !data) return;
+    data.forEach((row) => {
+        if (!row.valore) return;
+        document.querySelectorAll(`[data-content-key="${row.chiave}"]`).forEach((el) => {
+            el.textContent = row.valore;
+        });
+    });
+}
+
+/* ============================================
+   TESTIMONIANZE (recensioni vere, gestite dall'admin)
+   Se non c'e' nessuna testimonianza attiva, la sezione viene
+   nascosta del tutto invece di mostrare dati finti.
+   ============================================ */
+async function loadTestimonianze() {
+    const section = document.getElementById('testimonialsSection');
+    const grid = document.getElementById('testimonialsGrid');
+    if (!section || !grid) return;
+
+    // Resta nascosta (e' cosi' di default nell'HTML) finche' non
+    // troviamo almeno una testimonianza vera da mostrare.
+    if (typeof isSupabaseConfigured === 'undefined' || !isSupabaseConfigured) return;
+
+    const { data, error } = await supabaseClient
+        .from('testimonianze')
+        .select('*')
+        .eq('attivo', true)
+        .order('created_at', { ascending: false });
+
+    if (error || !data || data.length === 0) return;
+
+    grid.innerHTML = data.map((t) => {
+        const stelle = Math.min(5, Math.max(1, t.stelle || 5));
+        return `
+            <div class="testimonial-card fade-in">
+                <div class="stars">${'⭐'.repeat(stelle)}</div>
+                <p class="testimonial-text">"${escapeHtml(t.testo)}"</p>
+                <p class="testimonial-author">— ${escapeHtml(t.autore)}</p>
+            </div>
+        `;
+    }).join('');
+    section.style.display = '';
+}
 
 /* ============================================
    MENU MOBILE (hamburger)

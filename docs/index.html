@@ -45,8 +45,8 @@
     <!-- HERO BANNER -->
     <section class="hero-banner">
       <div class="inner-content">
-        <h1 class="font-baloo">Borse Artigianali all'Uncinetto</h1>
-        <p>
+        <h1 class="font-baloo" data-content-key="hero_titolo">Borse Artigianali all'Uncinetto</h1>
+        <p data-content-key="hero_sottotitolo">
           Ogni borsa GMBags è realizzata interamente a mano, all'uncinetto,
           con cura per ogni dettaglio
         </p>
@@ -60,30 +60,30 @@
     <section class="features-section">
       <div class="container">
         <div class="title-content">
-          <h2>Perché Scegliere GMBags</h2>
-          <p>Qualità, tradizione e eccellenza in ogni prodotto</p>
+          <h2 data-content-key="perche_titolo">Perché Scegliere GMBags</h2>
+          <p data-content-key="perche_sottotitolo">Qualità, tradizione e eccellenza in ogni prodotto</p>
         </div>
 
         <div class="features-grid">
           <div class="feature-box fade-in">
-            <h3>✨ Fatte a Mano</h3>
-            <p>
+            <h3 data-content-key="feature1_titolo">✨ Fatte a Mano</h3>
+            <p data-content-key="feature1_testo">
               Ogni borsa è realizzata all'uncinetto a mano, un pezzo alla
               volta, con cura per ogni dettaglio: nessuna produzione in serie.
             </p>
           </div>
 
           <div class="feature-box fade-in">
-            <h3>⏰ Da 2 Anni con Passione</h3>
-            <p>
+            <h3 data-content-key="feature2_titolo">⏰ Da 2 Anni con Passione</h3>
+            <p data-content-key="feature2_testo">
               GMBags nasce dalla passione per l'uncinetto: da due anni
               creiamo borse e pochette uniche, curate nei minimi dettagli.
             </p>
           </div>
 
           <div class="feature-box fade-in">
-            <h3>💬 Assistenza Diretta</h3>
-            <p>
+            <h3 data-content-key="feature3_titolo">💬 Assistenza Diretta</h3>
+            <p data-content-key="feature3_testo">
               Scrivici su WhatsApp o via email: ti seguiamo personalmente in
               ogni fase, dall'ordine alla consegna.
             </p>
@@ -112,42 +112,16 @@
       </div>
     </section>
 
-    <!-- SEZIONE TESTIMONIALI -->
-    <section class="testimonials-section">
+    <!-- SEZIONE TESTIMONIALI (recensioni vere, gestite da Admin; se non
+         ce n'e' nessuna attiva, la sezione resta nascosta) -->
+    <section class="testimonials-section" id="testimonialsSection" style="display: none;">
       <div class="container">
         <div class="title-content white">
           <h2>Cosa Dicono i Nostri Clienti</h2>
           <p>Leggi le opinioni di chi ha scelto GMBags</p>
         </div>
 
-        <div class="testimonials-grid">
-          <div class="testimonial-card fade-in">
-            <div class="stars">⭐⭐⭐⭐⭐</div>
-            <p class="testimonial-text">
-              "Ho acquistato questa borsa tre mesi fa e ancora non posso credere
-              alla qualità. È perfetta per il lavoro e gli eventi!"
-            </p>
-            <p class="testimonial-author">— Maria Rossi</p>
-          </div>
-
-          <div class="testimonial-card fade-in">
-            <div class="stars">⭐⭐⭐⭐⭐</div>
-            <p class="testimonial-text">
-              "Spedizione veloce e prodotto esattamente come in foto. Il
-              servizio clienti è stato impeccabile. Consigliatissimo!"
-            </p>
-            <p class="testimonial-author">— Luca Ferrari</p>
-          </div>
-
-          <div class="testimonial-card fade-in">
-            <div class="stars">⭐⭐⭐⭐⭐</div>
-            <p class="testimonial-text">
-              "Miglior rapporto qualità-prezzo che abbia mai trovato. Gli
-              accessori sono eleganti e durevoli. Tornerò a comprare!"
-            </p>
-            <p class="testimonial-author">— Giulia Bianchi</p>
-          </div>
-        </div>
+        <div class="testimonials-grid" id="testimonialsGrid"></div>
       </div>
     </section>
 

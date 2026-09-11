@@ -705,3 +705,99 @@ drop policy if exists "Admin elimina immagini" on storage.objects;
 create policy "Admin elimina immagini"
   on storage.objects for delete
   using (bucket_id = 'immagini' and public.is_admin());
+
+-- ============================================================
+-- AGGIORNAMENTO: CONTENUTI HOMEPAGE MODIFICABILI DALL'ADMIN
+-- I testi del banner iniziale e della sezione "Perche' Sceglierci"
+-- vengono salvati qui invece che scritti nel codice, cosi' l'admin
+-- puo' modificarli dal pannello senza bisogno di interventi tecnici.
+-- Se una chiave non esiste ancora nel database, il sito mostra il
+-- testo di default gia' scritto nella pagina (le righe qui sotto
+-- inseriscono i testi attuali, cosi' il pannello Admin parte gia'
+-- precompilato con quello che e' online adesso).
+-- ============================================================
+create table if not exists public.site_content (
+  chiave text primary key,
+  valore text not null default ''
+);
+
+alter table public.site_content enable row level security;
+
+drop policy if exists "Tutti leggono i contenuti del sito" on public.site_content;
+create policy "Tutti leggono i contenuti del sito"
+  on public.site_content for select
+  using (true);
+
+drop policy if exists "Admin crea contenuti" on public.site_content;
+create policy "Admin crea contenuti"
+  on public.site_content for insert
+  with check (public.is_admin());
+
+drop policy if exists "Admin modifica contenuti" on public.site_content;
+create policy "Admin modifica contenuti"
+  on public.site_content for update
+  using (public.is_admin());
+
+drop policy if exists "Admin elimina contenuti" on public.site_content;
+create policy "Admin elimina contenuti"
+  on public.site_content for delete
+  using (public.is_admin());
+
+insert into public.site_content (chiave, valore) values
+  ('hero_titolo', 'Borse Artigianali all''Uncinetto'),
+  ('hero_sottotitolo', 'Ogni borsa GMBags è realizzata interamente a mano, all''uncinetto, con cura per ogni dettaglio'),
+  ('perche_titolo', 'Perché Scegliere GMBags'),
+  ('perche_sottotitolo', 'Qualità, tradizione e eccellenza in ogni prodotto'),
+  ('feature1_titolo', '✨ Fatte a Mano'),
+  ('feature1_testo', 'Ogni borsa è realizzata all''uncinetto a mano, un pezzo alla volta, con cura per ogni dettaglio: nessuna produzione in serie.'),
+  ('feature2_titolo', '⏰ Da 2 Anni con Passione'),
+  ('feature2_testo', 'GMBags nasce dalla passione per l''uncinetto: da due anni creiamo borse e pochette uniche, curate nei minimi dettagli.'),
+  ('feature3_titolo', '💬 Assistenza Diretta'),
+  ('feature3_testo', 'Scrivici su WhatsApp o via email: ti seguiamo personalmente in ogni fase, dall''ordine alla consegna.')
+on conflict (chiave) do nothing;
+
+-- ============================================================
+-- AGGIORNAMENTO: TESTIMONIANZE VERE (al posto del testo di esempio)
+-- Le 3 recensioni finte scritte nel codice (Maria Rossi, Luca
+-- Ferrari, Giulia Bianchi) vengono tolte dal sito: questa tabella
+-- ospita le recensioni vere che l'admin aggiunge man mano che
+-- arrivano (es. copiate da WhatsApp o Instagram con il consenso del
+-- cliente). Se non c'e' ancora nessuna testimonianza attiva, la
+-- sezione "Cosa dicono i nostri clienti" non viene mostrata sul
+-- sito, invece di mostrare dati inventati.
+-- ============================================================
+create table if not exists public.testimonianze (
+  id uuid primary key default gen_random_uuid(),
+  autore text not null,
+  testo text not null,
+  stelle integer not null default 5 check (stelle between 1 and 5),
+  attivo boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table public.testimonianze enable row level security;
+
+drop policy if exists "Tutti leggono le testimonianze attive" on public.testimonianze;
+create policy "Tutti leggono le testimonianze attive"
+  on public.testimonianze for select
+  using (attivo = true);
+
+drop policy if exists "Admin legge tutte le testimonianze" on public.testimonianze;
+create policy "Admin legge tutte le testimonianze"
+  on public.testimonianze for select
+  using (public.is_admin());
+
+drop policy if exists "Admin crea testimonianze" on public.testimonianze;
+create policy "Admin crea testimonianze"
+  on public.testimonianze for insert
+  with check (public.is_admin());
+
+drop policy if exists "Admin modifica testimonianze" on public.testimonianze;
+create policy "Admin modifica testimonianze"
+  on public.testimonianze for update
+  using (public.is_admin());
+
+drop policy if exists "Admin elimina testimonianze" on public.testimonianze;
+create policy "Admin elimina testimonianze"
+  on public.testimonianze for delete
+  using (public.is_admin());

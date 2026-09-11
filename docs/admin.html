@@ -320,6 +320,110 @@
         </div>
     </section>
 
+    <!-- SEZIONE CONTENUTI HOMEPAGE -->
+    <section class="features-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>Contenuti Homepage</h2>
+                <p>Modifica i testi del banner iniziale e della sezione "Perché Sceglierci". Lascia vuoto un campo per non toccarlo.</p>
+            </div>
+
+            <form class="contact-form fade-in" id="contentForm">
+                <div class="form-group">
+                    <label for="contentHeroTitolo">Titolo banner iniziale</label>
+                    <input type="text" id="contentHeroTitolo">
+                </div>
+                <div class="form-group">
+                    <label for="contentHeroSottotitolo">Sottotitolo banner iniziale</label>
+                    <textarea id="contentHeroSottotitolo"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="contentPercheTitolo">Titolo sezione "Perché Sceglierci"</label>
+                    <input type="text" id="contentPercheTitolo">
+                </div>
+                <div class="form-group">
+                    <label for="contentPercheSottotitolo">Sottotitolo sezione "Perché Sceglierci"</label>
+                    <input type="text" id="contentPercheSottotitolo">
+                </div>
+                <div class="form-group">
+                    <label for="contentFeature1Titolo">Riquadro 1 - Titolo</label>
+                    <input type="text" id="contentFeature1Titolo">
+                </div>
+                <div class="form-group">
+                    <label for="contentFeature1Testo">Riquadro 1 - Testo</label>
+                    <textarea id="contentFeature1Testo"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="contentFeature2Titolo">Riquadro 2 - Titolo</label>
+                    <input type="text" id="contentFeature2Titolo">
+                </div>
+                <div class="form-group">
+                    <label for="contentFeature2Testo">Riquadro 2 - Testo</label>
+                    <textarea id="contentFeature2Testo"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="contentFeature3Titolo">Riquadro 3 - Titolo</label>
+                    <input type="text" id="contentFeature3Titolo">
+                </div>
+                <div class="form-group">
+                    <label for="contentFeature3Testo">Riquadro 3 - Testo</label>
+                    <textarea id="contentFeature3Testo"></textarea>
+                </div>
+                <button type="submit" class="form-submit" id="contentSubmitBtn">Salva Contenuti</button>
+                <p class="form-status" id="contentStatus"></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- SEZIONE GESTIONE TESTIMONIANZE -->
+    <section class="features-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>Gestione Testimonianze</h2>
+                <p>Recensioni vere dei clienti mostrate in Home. Se non ce n'è nessuna attiva, la sezione non compare sul sito.</p>
+            </div>
+
+            <form class="contact-form fade-in" id="testimonialForm" style="margin-bottom: 2.5rem;">
+                <input type="hidden" id="testimonialId" value="">
+                <div class="form-group">
+                    <label for="testimonialAutore">Nome cliente *</label>
+                    <input type="text" id="testimonialAutore" required>
+                </div>
+                <div class="form-group">
+                    <label for="testimonialTesto">Testo della recensione *</label>
+                    <textarea id="testimonialTesto" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="testimonialStelle">Stelle (1-5)</label>
+                    <input type="number" id="testimonialStelle" min="1" max="5" value="5">
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="testimonialAttivo" checked> Attiva (visibile sul sito)</label>
+                </div>
+                <button type="submit" class="form-submit" id="testimonialSubmitBtn">Aggiungi Testimonianza</button>
+                <button type="button" class="form-submit" id="testimonialCancelBtn" style="display: none; background: #999; margin-top: 0.6rem;">Annulla Modifica</button>
+                <p class="form-status" id="testimonialStatus"></p>
+            </form>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Testo</th>
+                            <th>Stelle</th>
+                            <th>Attiva</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTestimonialsBody">
+                        <tr><td colspan="5">Caricamento...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
     <!-- FOOTER -->
     <footer>
         <p>&copy; 2026 GMBags | Tutti i diritti riservati | <a href="privacy.html">Privacy Policy</a> | <a href="termini.html">Termini di Servizio</a></p>
@@ -799,6 +903,104 @@
             loadBotRisposte();
         }
 
+        const CAMPI_CONTENUTO = {
+            contentHeroTitolo: 'hero_titolo',
+            contentHeroSottotitolo: 'hero_sottotitolo',
+            contentPercheTitolo: 'perche_titolo',
+            contentPercheSottotitolo: 'perche_sottotitolo',
+            contentFeature1Titolo: 'feature1_titolo',
+            contentFeature1Testo: 'feature1_testo',
+            contentFeature2Titolo: 'feature2_titolo',
+            contentFeature2Testo: 'feature2_testo',
+            contentFeature3Titolo: 'feature3_titolo',
+            contentFeature3Testo: 'feature3_testo'
+        };
+
+        async function loadSiteContent() {
+            const { data, error } = await supabaseClient.from('site_content').select('*');
+            if (error || !data) return;
+            const valori = {};
+            data.forEach((row) => { valori[row.chiave] = row.valore; });
+
+            Object.entries(CAMPI_CONTENUTO).forEach(([elId, chiave]) => {
+                const el = document.getElementById(elId);
+                if (el && valori[chiave] != null) el.value = valori[chiave];
+            });
+        }
+
+        async function loadTestimonials() {
+            const { data: testimonialsData, error } = await supabaseClient
+                .from('testimonianze')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('adminTestimonialsBody');
+            tbody.innerHTML = '';
+
+            if (error) {
+                tbody.innerHTML = '<tr><td colspan="5">Errore nel caricamento delle testimonianze.</td></tr>';
+                return;
+            }
+
+            if (!testimonialsData || testimonialsData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Nessuna testimonianza ancora. Aggiungila qui sopra.</td></tr>';
+                return;
+            }
+
+            testimonialsData.forEach((t) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${escapeHtml(t.autore)}</td>
+                    <td style="max-width: 320px;">${escapeHtml(t.testo)}</td>
+                    <td>${'⭐'.repeat(Math.min(5, Math.max(1, t.stelle || 5)))}</td>
+                    <td>${t.attivo ? 'Sì' : 'No'}</td>
+                    <td></td>
+                `;
+
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Modifica';
+                editBtn.className = 'form-submit';
+                editBtn.style.cssText = 'width:auto; padding:6px 14px; font-size:0.8rem; margin-right:0.5rem;';
+                editBtn.addEventListener('click', () => startEditTestimonial(t));
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Elimina';
+                deleteBtn.className = 'form-submit';
+                deleteBtn.style.cssText = 'width:auto; padding:6px 14px; font-size:0.8rem; background:#c62828;';
+                deleteBtn.addEventListener('click', () => deleteTestimonial(t.id));
+
+                tr.lastElementChild.appendChild(editBtn);
+                tr.lastElementChild.appendChild(deleteBtn);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function startEditTestimonial(t) {
+            document.getElementById('testimonialId').value = t.id;
+            document.getElementById('testimonialAutore').value = t.autore;
+            document.getElementById('testimonialTesto').value = t.testo;
+            document.getElementById('testimonialStelle').value = t.stelle || 5;
+            document.getElementById('testimonialAttivo').checked = t.attivo;
+            document.getElementById('testimonialSubmitBtn').textContent = 'Aggiorna Testimonianza';
+            document.getElementById('testimonialCancelBtn').style.display = 'inline-block';
+            window.scrollTo({ top: document.getElementById('testimonialForm').offsetTop - 100, behavior: 'smooth' });
+        }
+
+        function resetTestimonialForm() {
+            document.getElementById('testimonialForm').reset();
+            document.getElementById('testimonialId').value = '';
+            document.getElementById('testimonialStelle').value = 5;
+            document.getElementById('testimonialAttivo').checked = true;
+            document.getElementById('testimonialSubmitBtn').textContent = 'Aggiungi Testimonianza';
+            document.getElementById('testimonialCancelBtn').style.display = 'none';
+        }
+
+        async function deleteTestimonial(id) {
+            if (!confirm('Eliminare questa testimonianza? L\'azione non si può annullare.')) return;
+            await supabaseClient.from('testimonianze').delete().eq('id', id);
+            loadTestimonials();
+        }
+
         (async () => {
             const result = await requireAdmin();
             if (!result) return;
@@ -809,10 +1011,13 @@
             loadPosts();
             loadAdminProducts();
             loadBotRisposte();
+            loadSiteContent();
+            loadTestimonials();
 
             document.getElementById('postCancelBtn').addEventListener('click', resetPostForm);
             document.getElementById('productCancelBtn').addEventListener('click', resetProductForm);
             document.getElementById('botCancelBtn').addEventListener('click', resetBotForm);
+            document.getElementById('testimonialCancelBtn').addEventListener('click', resetTestimonialForm);
 
             document.getElementById('productImmagineFile').addEventListener('change', async (e) => {
                 const file = e.target.files[0];
@@ -976,6 +1181,69 @@
 
                 resetPostForm();
                 loadPosts();
+            });
+
+            document.getElementById('contentForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const statusEl = document.getElementById('contentStatus');
+                statusEl.textContent = '';
+
+                const righe = Object.entries(CAMPI_CONTENUTO)
+                    .map(([elId, chiave]) => ({ chiave, valore: document.getElementById(elId).value.trim() }))
+                    .filter((riga) => riga.valore !== '');
+
+                if (righe.length === 0) {
+                    statusEl.style.color = '#c62828';
+                    statusEl.textContent = 'Scrivi almeno un testo da salvare.';
+                    return;
+                }
+
+                const { error } = await supabaseClient.from('site_content').upsert(righe, { onConflict: 'chiave' });
+
+                if (error) {
+                    statusEl.style.color = '#c62828';
+                    statusEl.textContent = 'Errore: ' + error.message;
+                    return;
+                }
+                statusEl.style.color = '#2e7d32';
+                statusEl.textContent = 'Contenuti salvati! Ricarica la homepage per vederli aggiornati.';
+            });
+
+            document.getElementById('testimonialForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const statusEl = document.getElementById('testimonialStatus');
+                const testimonialId = document.getElementById('testimonialId').value;
+                const autore = document.getElementById('testimonialAutore').value.trim();
+                const testo = document.getElementById('testimonialTesto').value.trim();
+                const stelle = Math.min(5, Math.max(1, parseInt(document.getElementById('testimonialStelle').value, 10) || 5));
+                const attivo = document.getElementById('testimonialAttivo').checked;
+
+                statusEl.textContent = '';
+
+                const payload = { autore, testo, stelle, attivo };
+
+                if (testimonialId) {
+                    const { error } = await supabaseClient.from('testimonianze').update(payload).eq('id', testimonialId);
+                    if (error) {
+                        statusEl.style.color = '#c62828';
+                        statusEl.textContent = 'Errore: ' + error.message;
+                        return;
+                    }
+                    statusEl.style.color = '#2e7d32';
+                    statusEl.textContent = 'Testimonianza aggiornata!';
+                } else {
+                    const { error } = await supabaseClient.from('testimonianze').insert(payload);
+                    if (error) {
+                        statusEl.style.color = '#c62828';
+                        statusEl.textContent = 'Errore: ' + error.message;
+                        return;
+                    }
+                    statusEl.style.color = '#2e7d32';
+                    statusEl.textContent = 'Testimonianza aggiunta!';
+                }
+
+                resetTestimonialForm();
+                loadTestimonials();
             });
         })();
     </script>
