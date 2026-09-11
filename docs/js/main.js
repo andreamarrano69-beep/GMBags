@@ -133,6 +133,7 @@ class ChatBot {
         this.risposte = null;
         this.storicoUtente = [];
         this.richiestaProposta = false;
+        this.hintEl = null;
 
         this.init();
         this.caricaRisposte();
@@ -153,7 +154,13 @@ class ChatBot {
             // scattare il toggle due volte, annullandosi a vicenda.
             this.chatbotHeader.addEventListener('click', () => this.toggleChat());
 
-            setTimeout(() => this.mostraSuggerimento(), 2000);
+            // Il fumetto si vede anche passando il mouse sopra il pulsante
+            // chiuso: cosi' chi torna sul sito lo rivede ogni volta che ci
+            // passa vicino, non solo alla primissima visita.
+            this.chatbotWidget.addEventListener('mouseenter', () => this.mostraHint());
+            this.chatbotWidget.addEventListener('mouseleave', () => this.nascondiHint());
+
+            this.provaSuggerimentoAutomatico();
         }
 
         if (this.sendBtn) {
@@ -164,11 +171,10 @@ class ChatBot {
         }
     }
 
-    // Fumetto che fa notare il chatbot a chi arriva sul sito: compare una
-    // volta sola per visita (sessionStorage), sparisce da solo dopo un po'
-    // o subito se l'utente apre la chat o ci clicca sopra.
-    mostraSuggerimento() {
-        if (!this.chatbotWidget.classList.contains('collapsed')) return;
+    // Mostra il fumetto una volta sola per visita (sessionStorage), poco
+    // dopo il caricamento della pagina, cosi' chi arriva sul sito nota
+    // subito il chatbot senza doverci passare sopra col mouse.
+    provaSuggerimentoAutomatico() {
         try {
             if (sessionStorage.getItem('gmbags_chat_hint_shown')) return;
             sessionStorage.setItem('gmbags_chat_hint_shown', '1');
@@ -178,18 +184,32 @@ class ChatBot {
             // semplicemente non lo ricorderemo per le pagine successive.
         }
 
+        setTimeout(() => {
+            this.mostraHint();
+            setTimeout(() => this.nascondiHint(), 6000);
+        }, 2000);
+    }
+
+    mostraHint() {
+        if (!this.chatbotWidget.classList.contains('collapsed')) return;
+        if (this.hintEl) return; // gia' visibile, non crearne un secondo
+
         const hint = document.createElement('div');
         hint.className = 'chatbot-hint';
         hint.textContent = 'Hai domande? Scrivici! 👋';
         hint.addEventListener('click', () => {
-            hint.remove();
+            this.nascondiHint();
             if (this.chatbotWidget.classList.contains('collapsed')) this.toggleChat();
         });
         document.body.appendChild(hint);
+        this.hintEl = hint;
+    }
 
-        const nascondiHint = () => hint.remove();
-        this.chatbotHeader.addEventListener('click', nascondiHint, { once: true });
-        setTimeout(nascondiHint, 7000);
+    nascondiHint() {
+        if (this.hintEl) {
+            this.hintEl.remove();
+            this.hintEl = null;
+        }
     }
 
     async caricaRisposte() {
@@ -202,6 +222,7 @@ class ChatBot {
     }
 
     toggleChat() {
+        this.nascondiHint();
         if (this.chatbotBody.style.display === 'none' || !this.chatbotBody.style.display) {
             this.chatbotBody.style.display = 'flex';
             this.chatbotToggle.innerHTML = ChatBot.ICON_CLOSE;
