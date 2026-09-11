@@ -381,6 +381,61 @@
         </div>
     </section>
 
+    <!-- SEZIONE CONTENUTI PAGINA PRODOTTI -->
+    <section class="features-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>Contenuti Pagina Prodotti</h2>
+                <p>Modifica i testi del banner e delle 3 categorie nella pagina "Prodotti". Lascia vuoto un campo per non toccarlo.</p>
+            </div>
+
+            <form class="contact-form fade-in" id="productsContentForm">
+                <div class="form-group">
+                    <label for="pcHeroTitolo">Titolo banner</label>
+                    <input type="text" id="pcHeroTitolo">
+                </div>
+                <div class="form-group">
+                    <label for="pcHeroSottotitolo">Sottotitolo banner</label>
+                    <textarea id="pcHeroSottotitolo"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pcCategorieTitolo">Titolo sezione categorie</label>
+                    <input type="text" id="pcCategorieTitolo">
+                </div>
+                <div class="form-group">
+                    <label for="pcCategorieSottotitolo">Sottotitolo sezione categorie</label>
+                    <input type="text" id="pcCategorieSottotitolo">
+                </div>
+                <div class="form-group">
+                    <label for="pcCategoria1Titolo">Categoria 1 - Titolo</label>
+                    <input type="text" id="pcCategoria1Titolo">
+                </div>
+                <div class="form-group">
+                    <label for="pcCategoria1Testo">Categoria 1 - Testo</label>
+                    <textarea id="pcCategoria1Testo"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pcCategoria2Titolo">Categoria 2 - Titolo</label>
+                    <input type="text" id="pcCategoria2Titolo">
+                </div>
+                <div class="form-group">
+                    <label for="pcCategoria2Testo">Categoria 2 - Testo</label>
+                    <textarea id="pcCategoria2Testo"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="pcCategoria3Titolo">Categoria 3 - Titolo</label>
+                    <input type="text" id="pcCategoria3Titolo">
+                </div>
+                <div class="form-group">
+                    <label for="pcCategoria3Testo">Categoria 3 - Testo</label>
+                    <textarea id="pcCategoria3Testo"></textarea>
+                </div>
+                <button type="submit" class="form-submit" id="productsContentSubmitBtn">Salva Contenuti</button>
+                <p class="form-status" id="productsContentStatus"></p>
+            </form>
+        </div>
+    </section>
+
     <!-- SEZIONE GESTIONE TESTIMONIANZE -->
     <section class="features-section">
         <div class="container">
@@ -935,6 +990,31 @@
             });
         }
 
+        const CAMPI_CONTENUTO_PRODOTTI = {
+            pcHeroTitolo: 'prodotti_hero_titolo',
+            pcHeroSottotitolo: 'prodotti_hero_sottotitolo',
+            pcCategorieTitolo: 'categorie_titolo',
+            pcCategorieSottotitolo: 'categorie_sottotitolo',
+            pcCategoria1Titolo: 'categoria1_titolo',
+            pcCategoria1Testo: 'categoria1_testo',
+            pcCategoria2Titolo: 'categoria2_titolo',
+            pcCategoria2Testo: 'categoria2_testo',
+            pcCategoria3Titolo: 'categoria3_titolo',
+            pcCategoria3Testo: 'categoria3_testo'
+        };
+
+        async function loadProductsPageContent() {
+            const { data, error } = await supabaseClient.from('site_content').select('*');
+            if (error || !data) return;
+            const valori = {};
+            data.forEach((row) => { valori[row.chiave] = row.valore; });
+
+            Object.entries(CAMPI_CONTENUTO_PRODOTTI).forEach(([elId, chiave]) => {
+                const el = document.getElementById(elId);
+                if (el && valori[chiave] != null) el.value = valori[chiave];
+            });
+        }
+
         async function loadTestimonials() {
             const { data: testimonialsData, error } = await supabaseClient
                 .from('testimonianze')
@@ -1019,6 +1099,7 @@
             loadAdminProducts();
             loadBotRisposte();
             loadSiteContent();
+            loadProductsPageContent();
             loadTestimonials();
 
             document.getElementById('postCancelBtn').addEventListener('click', resetPostForm);
@@ -1231,6 +1312,32 @@
                 }
                 statusEl.style.color = '#2e7d32';
                 statusEl.textContent = 'Contenuti salvati! Ricarica la homepage per vederli aggiornati.';
+            });
+
+            document.getElementById('productsContentForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const statusEl = document.getElementById('productsContentStatus');
+                statusEl.textContent = '';
+
+                const righe = Object.entries(CAMPI_CONTENUTO_PRODOTTI)
+                    .map(([elId, chiave]) => ({ chiave, valore: document.getElementById(elId).value.trim() }))
+                    .filter((riga) => riga.valore !== '');
+
+                if (righe.length === 0) {
+                    statusEl.style.color = '#c62828';
+                    statusEl.textContent = 'Scrivi almeno un testo da salvare.';
+                    return;
+                }
+
+                const { error } = await supabaseClient.from('site_content').upsert(righe, { onConflict: 'chiave' });
+
+                if (error) {
+                    statusEl.style.color = '#c62828';
+                    statusEl.textContent = 'Errore: ' + error.message;
+                    return;
+                }
+                statusEl.style.color = '#2e7d32';
+                statusEl.textContent = 'Contenuti salvati! Ricarica la pagina Prodotti per vederli aggiornati.';
             });
 
             document.getElementById('testimonialForm').addEventListener('submit', async (e) => {

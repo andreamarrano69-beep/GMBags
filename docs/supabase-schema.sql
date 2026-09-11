@@ -769,7 +769,17 @@ insert into public.site_content (chiave, valore) values
   ('feature2_titolo', '⏰ Da 2 Anni con Passione'),
   ('feature2_testo', 'GMBags nasce dalla passione per l''uncinetto: da due anni creiamo borse e pochette uniche, curate nei minimi dettagli.'),
   ('feature3_titolo', '💬 Assistenza Diretta'),
-  ('feature3_testo', 'Scrivici su WhatsApp o via email: ti seguiamo personalmente in ogni fase, dall''ordine alla consegna.')
+  ('feature3_testo', 'Scrivici su WhatsApp o via email: ti seguiamo personalmente in ogni fase, dall''ordine alla consegna.'),
+  ('prodotti_hero_titolo', 'I Nostri Prodotti'),
+  ('prodotti_hero_sottotitolo', 'Scopri la collezione di borse e pochette all''uncinetto GMBags'),
+  ('categorie_titolo', 'Categorie Prodotti'),
+  ('categorie_sottotitolo', 'Trova quello che fa per te'),
+  ('categoria1_titolo', '👜 Pochette e Clutch'),
+  ('categoria1_testo', 'Pochette all''uncinetto eleganti e versatili, perfette per ogni occasione. Realizzate interamente a mano.'),
+  ('categoria2_titolo', '🧶 Borse a Tracolla'),
+  ('categoria2_testo', 'Borse a tracolla all''uncinetto con dettagli in catena dorata, per un look pratico ed elegante.'),
+  ('categoria3_titolo', '💫 Accessori'),
+  ('categoria3_testo', 'Ciondoli, portachiavi e piccoli accessori all''uncinetto per personalizzare la tua borsa.')
 on conflict (chiave) do nothing;
 
 -- ============================================================
