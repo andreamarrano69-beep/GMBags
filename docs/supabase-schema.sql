@@ -22,15 +22,18 @@ create table if not exists public.profiles (
 alter table public.profiles enable row level security;
 
 -- Un utente puo' leggere e modificare solo il proprio profilo
+drop policy if exists "Utenti leggono il proprio profilo" on public.profiles;
 create policy "Utenti leggono il proprio profilo"
   on public.profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "Utenti aggiornano il proprio profilo" on public.profiles;
 create policy "Utenti aggiornano il proprio profilo"
   on public.profiles for update
   using (auth.uid() = id);
 
 -- Gli admin possono leggere tutti i profili (serve per il pannello admin)
+drop policy if exists "Admin legge tutti i profili" on public.profiles;
 create policy "Admin legge tutti i profili"
   on public.profiles for select
   using (
@@ -85,15 +88,18 @@ create table if not exists public.orders (
 alter table public.orders enable row level security;
 
 -- Un utente crea e legge solo i propri ordini
+drop policy if exists "Utenti creano i propri ordini" on public.orders;
 create policy "Utenti creano i propri ordini"
   on public.orders for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Utenti leggono i propri ordini" on public.orders;
 create policy "Utenti leggono i propri ordini"
   on public.orders for select
   using (auth.uid() = user_id);
 
 -- Gli admin leggono e aggiornano tutti gli ordini (stato/pagamento)
+drop policy if exists "Admin legge tutti gli ordini" on public.orders;
 create policy "Admin legge tutti gli ordini"
   on public.orders for select
   using (
@@ -103,6 +109,7 @@ create policy "Admin legge tutti gli ordini"
     )
   );
 
+drop policy if exists "Admin aggiorna tutti gli ordini" on public.orders;
 create policy "Admin aggiorna tutti gli ordini"
   on public.orders for update
   using (
@@ -156,10 +163,12 @@ create table if not exists public.blog_posts (
 
 alter table public.blog_posts enable row level security;
 
+drop policy if exists "Tutti leggono gli articoli pubblicati" on public.blog_posts;
 create policy "Tutti leggono gli articoli pubblicati"
   on public.blog_posts for select
   using (pubblicato = true);
 
+drop policy if exists "Admin legge tutti gli articoli, anche bozze" on public.blog_posts;
 create policy "Admin legge tutti gli articoli, anche bozze"
   on public.blog_posts for select
   using (
@@ -169,6 +178,7 @@ create policy "Admin legge tutti gli articoli, anche bozze"
     )
   );
 
+drop policy if exists "Admin crea articoli" on public.blog_posts;
 create policy "Admin crea articoli"
   on public.blog_posts for insert
   with check (
@@ -178,6 +188,7 @@ create policy "Admin crea articoli"
     )
   );
 
+drop policy if exists "Admin modifica articoli" on public.blog_posts;
 create policy "Admin modifica articoli"
   on public.blog_posts for update
   using (
@@ -187,6 +198,7 @@ create policy "Admin modifica articoli"
     )
   );
 
+drop policy if exists "Admin elimina articoli" on public.blog_posts;
 create policy "Admin elimina articoli"
   on public.blog_posts for delete
   using (
@@ -214,11 +226,13 @@ create table if not exists public.contact_messages (
 
 alter table public.contact_messages enable row level security;
 
+drop policy if exists "Chiunque puo' inviare un messaggio di contatto" on public.contact_messages;
 create policy "Chiunque puo' inviare un messaggio di contatto"
   on public.contact_messages for insert
   to anon, authenticated
   with check (true);
 
+drop policy if exists "Admin legge tutti i messaggi" on public.contact_messages;
 create policy "Admin legge tutti i messaggi"
   on public.contact_messages for select
   using (
@@ -228,6 +242,7 @@ create policy "Admin legge tutti i messaggi"
     )
   );
 
+drop policy if exists "Admin aggiorna lo stato dei messaggi" on public.contact_messages;
 create policy "Admin aggiorna lo stato dei messaggi"
   on public.contact_messages for update
   using (
