@@ -131,6 +131,8 @@ class ChatBot {
         this.userInput = document.getElementById('userInput');
         this.chatbotMessages = document.querySelector('.chatbot-messages');
         this.risposte = null;
+        this.storicoUtente = [];
+        this.richiestaProposta = false;
 
         this.init();
         this.caricaRisposte();
@@ -189,12 +191,21 @@ class ChatBot {
 
         // Aggiungi messaggio dell'utente
         this.addMessage(message, 'user');
+        this.storicoUtente.push(message);
         this.userInput.value = '';
 
         // Simula risposta del bot
         setTimeout(() => {
-            const response = this.getBotResponse(message);
-            this.addMessage(response, 'bot');
+            const { testo, fallback } = this.getBotResponse(message);
+            this.addMessage(testo, 'bot');
+            // Se il bot non ha trovato una risposta specifica, proponi (una
+            // sola volta per conversazione) di lasciare l'email per farsi
+            // ricontattare: e' il modo in cui un umano prende in carico la
+            // richiesta, senza bisogno di WhatsApp collegato.
+            if (fallback && !this.richiestaProposta) {
+                this.richiestaProposta = true;
+                this.proponiRichiesta();
+            }
         }, 500);
     }
 
@@ -204,21 +215,72 @@ class ChatBot {
         messageDiv.innerHTML = `<p>${this.escapeHtml(text)}</p>`;
         this.chatbotMessages.appendChild(messageDiv);
         this.chatbotMessages.scrollTop = this.chatbotMessages.scrollHeight;
+        return messageDiv;
+    }
+
+    proponiRichiesta() {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot-message';
+        messageDiv.innerHTML = `
+            <p>Lascia la tua email: ti rispondiamo noi personalmente il prima possibile.</p>
+            <form class="chatbot-lead-form">
+                <input type="email" required placeholder="La tua email" class="chatbot-lead-email">
+                <button type="submit">Invia</button>
+            </form>
+            <p class="chatbot-lead-status"></p>
+        `;
+        this.chatbotMessages.appendChild(messageDiv);
+        this.chatbotMessages.scrollTop = this.chatbotMessages.scrollHeight;
+
+        const form = messageDiv.querySelector('.chatbot-lead-form');
+        const emailInput = messageDiv.querySelector('.chatbot-lead-email');
+        const statusEl = messageDiv.querySelector('.chatbot-lead-status');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            if (!email) return;
+
+            const submitBtn = form.querySelector('button');
+            submitBtn.disabled = true;
+            emailInput.disabled = true;
+            statusEl.textContent = 'Invio in corso...';
+
+            const messaggio = this.storicoUtente.join('\n') || '(nessun messaggio)';
+
+            fetch('https://formsubmit.co/ajax/gmbags2026@gmail.com', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({
+                    email,
+                    messaggio,
+                    _subject: 'Nuova richiesta dal chatbot GMBags'
+                })
+            }).catch(() => {});
+
+            if (typeof isSupabaseConfigured !== 'undefined' && isSupabaseConfigured) {
+                await supabaseClient.from('chatbot_richieste').insert({ email, messaggio });
+            }
+
+            form.style.display = 'none';
+            statusEl.style.color = '#2e7d32';
+            statusEl.textContent = `Grazie! Ti risponderemo a ${email} il prima possibile.`;
+        });
     }
 
     getBotResponse(userMessage) {
         const rispostaSicurezza = 'Grazie per la tua domanda! Per informazioni scrivici via email a gmbags2026@gmail.com';
 
         if (!this.risposte || this.risposte.length === 0) {
-            return rispostaSicurezza;
+            return { testo: rispostaSicurezza, fallback: true };
         }
 
         const lowerMessage = userMessage.toLowerCase();
         const trovata = this.risposte.find((r) => r.parola_chiave && lowerMessage.includes(r.parola_chiave.toLowerCase()));
-        if (trovata) return trovata.risposta;
+        if (trovata) return { testo: trovata.risposta, fallback: false };
 
         const predefinita = this.risposte.find((r) => r.predefinita);
-        return predefinita ? predefinita.risposta : rispostaSicurezza;
+        return { testo: predefinita ? predefinita.risposta : rispostaSicurezza, fallback: true };
     }
 
     escapeHtml(text) {

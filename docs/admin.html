@@ -127,6 +127,32 @@
         </div>
     </section>
 
+    <!-- SEZIONE MESSAGGI CHATBOT -->
+    <section class="products-section">
+        <div class="container">
+            <div class="title-content">
+                <h2>Messaggi Chatbot</h2>
+                <p>Richieste lasciate dai visitatori quando il chatbot non trovava una risposta</p>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Email</th>
+                            <th>Messaggio</th>
+                            <th>Stato</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminChatbotRichiesteBody">
+                        <tr><td colspan="4">Caricamento...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
     <!-- SEZIONE GESTIONE BLOG -->
     <section class="features-section">
         <div class="container">
@@ -674,6 +700,54 @@
             });
         }
 
+        async function updateChatbotRichiestaStatus(richiestaId, newStatus) {
+            await supabaseClient.from('chatbot_richieste').update({ stato: newStatus }).eq('id', richiestaId);
+        }
+
+        async function loadChatbotRichieste() {
+            const { data: richieste, error } = await supabaseClient
+                .from('chatbot_richieste')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('adminChatbotRichiesteBody');
+            tbody.innerHTML = '';
+
+            if (error) {
+                tbody.innerHTML = '<tr><td colspan="4">Errore nel caricamento dei messaggi.</td></tr>';
+                return;
+            }
+
+            if (!richieste || richieste.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">Nessuna richiesta ricevuta finora.</td></tr>';
+                return;
+            }
+
+            richieste.forEach((r) => {
+                const data = new Date(r.created_at).toLocaleDateString('it-IT');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${data}</td>
+                    <td><a href="mailto:${escapeHtml(r.email)}">${escapeHtml(r.email)}</a></td>
+                    <td style="max-width: 320px; white-space: pre-line;">${escapeHtml(r.messaggio)}</td>
+                    <td></td>
+                `;
+
+                const select = document.createElement('select');
+                STATI_MESSAGGIO.forEach((stato) => {
+                    const option = document.createElement('option');
+                    option.value = stato;
+                    option.textContent = stato;
+                    if (stato === r.stato) option.selected = true;
+                    select.appendChild(option);
+                });
+                select.addEventListener('change', () => updateChatbotRichiestaStatus(r.id, select.value));
+                tr.lastElementChild.appendChild(select);
+
+                tbody.appendChild(tr);
+            });
+        }
+
         async function loadPosts() {
             const { data: posts, error } = await supabaseClient
                 .from('blog_posts')
@@ -1095,6 +1169,7 @@
             loadOrders();
             loadUsers(result.session.user.id);
             loadMessages();
+            loadChatbotRichieste();
             loadPosts();
             loadAdminProducts();
             loadBotRisposte();

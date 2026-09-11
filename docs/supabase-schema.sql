@@ -827,3 +827,38 @@ drop policy if exists "Admin elimina testimonianze" on public.testimonianze;
 create policy "Admin elimina testimonianze"
   on public.testimonianze for delete
   using (public.is_admin());
+
+-- ============================================================
+-- AGGIORNAMENTO: RICHIESTE DAL CHATBOT (al posto di WhatsApp)
+-- Quando il chatbot non trova una risposta buona alle parole chiave,
+-- propone al visitatore di lasciare la propria email: il messaggio
+-- e il contatto vengono salvati qui (e notificati via email), cosi'
+-- l'admin puo' rispondere con calma senza bisogno di un numero
+-- WhatsApp collegato. E' anonimo (nessun login richiesto), come il
+-- modulo Contatti.
+-- ============================================================
+create table if not exists public.chatbot_richieste (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  messaggio text not null,
+  stato text not null default 'nuovo',
+  created_at timestamptz not null default now()
+);
+
+alter table public.chatbot_richieste enable row level security;
+
+drop policy if exists "Chiunque puo' inviare una richiesta dal chatbot" on public.chatbot_richieste;
+create policy "Chiunque puo' inviare una richiesta dal chatbot"
+  on public.chatbot_richieste for insert
+  to anon, authenticated
+  with check (true);
+
+drop policy if exists "Admin legge tutte le richieste chatbot" on public.chatbot_richieste;
+create policy "Admin legge tutte le richieste chatbot"
+  on public.chatbot_richieste for select
+  using (public.is_admin());
+
+drop policy if exists "Admin aggiorna lo stato delle richieste chatbot" on public.chatbot_richieste;
+create policy "Admin aggiorna lo stato delle richieste chatbot"
+  on public.chatbot_richieste for update
+  using (public.is_admin());

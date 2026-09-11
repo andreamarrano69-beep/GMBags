@@ -758,6 +758,44 @@ footer a:hover {
   margin: 0;
 }
 
+/* Modulo "lascia la tua email" proposto dal bot quando non trova una
+   risposta buona alle parole chiave, dentro il fumetto del bot. */
+.chatbot-lead-form {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.chatbot-lead-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.6rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.chatbot-lead-form button {
+  padding: 0.5rem 0.8rem;
+  background: var(--accent-natural);
+  color: var(--primary-dark);
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.chatbot-lead-form button:hover {
+  background: #c7b294;
+}
+
+.bot-message p.chatbot-lead-status {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
 .chatbot-input {
   display: flex;
   gap: 0.5rem;
