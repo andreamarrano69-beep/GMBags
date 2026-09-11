@@ -647,7 +647,10 @@ footer a:hover {
   background: white;
   border-radius: 12px;
   box-shadow: var(--shadow-strong);
-  z-index: 999;
+  /* Deve stare sopra la barra di navigazione in alto (z-index: 1000,
+     position: sticky), altrimenti quando il riquadro e' alto la sua
+     intestazione finisce coperta dalla barra. */
+  z-index: 1001;
   overflow: hidden;
   animation: slideInUp 0.4s ease-out;
   transition: width 0.25s ease;
