@@ -635,10 +635,13 @@ footer a:hover {
   bottom: 20px;
   right: 20px;
   width: 350px;
-  /* Non deve mai superare l'altezza disponibile dello schermo,
-     altrimenti l'intestazione (con il pulsante per chiudere) puo'
-     finire sopra il bordo superiore, fuori dalla parte visibile. */
-  max-height: min(520px, calc(100vh - 40px));
+  /* Altezza fissa (non solo massima): con tanti messaggi in chat,
+     "max-height" da sola non basta a far scorrere la lista messaggi
+     internamente in tutti i browser - il riquadro finiva per crescere
+     comunque, spingendo l'intestazione (e la "x" per chiudere) fuori
+     dallo schermo. Con un'altezza fissa i figli flessibili hanno un
+     riferimento certo e lo scroll interno funziona sempre. */
+  height: min(520px, calc(100vh - 40px));
   display: flex;
   flex-direction: column;
   background: white;
@@ -653,7 +656,7 @@ footer a:hover {
 /* Stato "chiuso": solo un pulsante rotondo, non copre il contenuto sotto */
 .chatbot-widget.collapsed {
   width: 56px;
-  max-height: 56px;
+  height: 56px;
   border-radius: 50%;
   box-shadow: var(--shadow-medium);
 }
@@ -715,6 +718,7 @@ footer a:hover {
 
 .chatbot-messages {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 1rem;
   background: var(--primary-light);
